@@ -1,0 +1,163 @@
+.add-page {
+  display: flex;
+  width: 100%;
+}
+
+.add-page-container {
+  flex: 6;
+  background-color: #f5f5f5;
+}
+
+.add-page-content {
+  padding: 32px;
+  margin-top: 0;
+}
+
+.page-header {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-icon {
+  line-height: 0;
+}
+
+.header-icon svg {
+  font-size: 64px;
+  color: #000;
+}
+
+.header-text h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.form-grid {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.form-field .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.form-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #000;
+}
+
+.form-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #000;
+  border-width: 2px;
+}
+
+.form-field .MuiInputLabel-root.Mui-focused {
+  color: #000;
+}
+
+.form-field .MuiSwitch-root .MuiSwitch-track {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.form-field .MuiSwitch-root .MuiSwitch-thumb {
+  background-color: #fff;
+}
+
+.form-field .MuiSwitch-root.Mui-checked .MuiSwitch-track {
+  background-color: #000 !important;
+  opacity: 0.5;
+}
+
+.form-field .MuiSwitch-root.Mui-checked .MuiSwitch-thumb {
+  background-color: #000;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.back-button {
+  background: #fff !important;
+  border: 1px solid #000 !important;
+  color: #000 !important;
+  font-weight: 500 !important;
+  padding: 8px 24px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.back-button:hover {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.back-button:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.submit-button {
+  background: #000 !important;
+  color: #fff !important;
+  padding: 8px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.submit-button:hover {
+  background: #333 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .add-page-content {
+    padding: 16px;
+    margin-top: 32px;
+  }
+
+  .form-grid {
+    padding: 24px;
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    padding: 16px 24px;
+  }
+
+  .header-icon svg {
+    font-size: 48px;
+  }
+
+  .header-text h1 {
+    font-size: 24px;
+  }
+} 

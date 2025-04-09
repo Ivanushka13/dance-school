@@ -1,0 +1,65 @@
+.teacher-card {
+    display: flex;
+    justify-content: center;
+    -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+    box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+    width: 26%;
+    border-radius: 30px;
+    margin: 3rem 3rem 1rem;
+
+    .data-teacher-section {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+        .teacher-container {
+
+            .teacher-name h2 {
+                font-size: 1.5rem;
+            }
+
+            .teacher-info {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .subLine {
+                    width: 90%;
+                    display: flex;
+                    align-items: center;
+                    border: 0.5px solid lightgray;
+                    border-radius: 10px;
+                    margin-bottom: 1rem;
+
+                    & span {
+                        outline: none;
+                        background: transparent;
+                        padding: 0.5rem;
+                    }
+                }
+            }
+
+            .register-teacher-btn {
+                width: 40%;
+                padding: 0.8rem;
+                background-color: black;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 1em;
+                cursor: pointer;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+    }
+
+    .data-teacher-section img {
+        margin-top: 1rem;
+        width: 10rem;
+        height: 10rem;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}

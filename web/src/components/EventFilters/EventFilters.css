@@ -1,0 +1,113 @@
+.filters-container {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.filters-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filters-title svg {
+    width: 24px;
+    height: 24px;
+    color: #666;
+}
+
+.clear-filters {
+    font-size: 0.875rem;
+    color: #666;
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.clear-filters:hover {
+    background-color: #f8f9fa;
+    color: #1a1a1a;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.filter-item {
+    position: relative;
+    cursor: pointer;
+}
+
+.filter-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    color: #1a1a1a;
+    transition: all 0.3s ease;
+    user-select: none;
+    gap: 0.5rem;
+}
+
+.filter-label svg {
+    width: 18px;
+    height: 18px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.filter-checkbox:checked + .filter-label {
+    background-color: #1a1a1a;
+    color: white;
+}
+
+.filter-checkbox:checked + .filter-label svg {
+    color: white;
+}
+
+.filter-checkbox:focus + .filter-label {
+    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
+}
+
+@media (max-width: 768px) {
+    .filters-container {
+        padding: 1rem;
+    }
+
+    .filters-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .filter-label {
+        padding: 0.5rem 0.75rem;
+    }
+} 

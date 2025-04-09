@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.login-container {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../../assets/images/ballet.jpeg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.login-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 0 20px;
+}
+
+.login-form {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #1a1a1a;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #1a1a1a;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(26, 26, 26, 0.1);
+}
+
+.input-group input.error {
+    border-color: #dc3545;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.sign-in-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.sign-in-button:hover {
+    background-color: #333;
+    transform: translateY(-2px);
+}
+
+.links {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+
+.link-button,
+.sign-up-link {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+.link-button:hover,
+.sign-up-link:hover {
+    background-color: rgba(26, 26, 26, 0.08);
+    transform: translateY(-1px);
+    color: #000;
+}
+
+.link-button::after,
+.sign-up-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0.5rem;
+    left: 25%;
+    right: 25%;
+    height: 1px;
+    background-color: #1a1a1a;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.link-button:hover::after,
+.sign-up-link:hover::after {
+    transform: scaleX(1);
+}
+
+.test-credentials {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background-color: rgba(245, 245, 245, 0.9);
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.test-credentials-title {
+    font-size: 0.9rem;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.test-credentials-item {
+    font-size: 0.875rem;
+    color: #4a4a4a;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.test-credentials-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        padding: 2rem;
+    }
+
+    .login-title {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .input-group input {
+        padding: 0.875rem;
+    }
+
+    .links {
+        margin-top: 1.5rem;
+    }
+}

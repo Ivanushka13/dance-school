@@ -1,0 +1,242 @@
+.request-details-content {
+    min-height: calc(100vh - 64px);
+    padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+}
+
+.request-details-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+
+.request-info-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.request-info-section h1 {
+    font-size: 1.75rem;
+    color: #1a1a1a;
+    margin: 0 0 2rem 0;
+}
+
+
+.student-info {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.student-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 60px;
+    object-fit: cover;
+}
+
+.student-details {
+    flex: 1;
+}
+
+.student-details h2 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    margin: 0 0 1rem 0;
+}
+
+.level-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #e6f4ea;
+    color: #1e7e34;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+}
+
+.contact-icon {
+    font-size: 1.25rem;
+}
+
+
+.lesson-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+}
+
+.info-label {
+    width: 150px;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.info-value {
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+
+.classrooms-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.classrooms-section h2 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    margin: 0 0 1.5rem 0;
+}
+
+.classrooms-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.classroom-card {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.classroom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.classroom-card.selected {
+    border-color: #1a1a1a;
+    background-color: white;
+}
+
+.classroom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.classroom-header h3 {
+    font-size: 1.25rem;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.capacity {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.classroom-description {
+    color: #666;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.reject-button, .accept-button {
+    flex: 1;
+    height: 52px !important;
+    font-size: 1rem !important;
+    text-transform: none !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.reject-button {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.reject-button:hover {
+    background-color: rgba(220, 53, 69, 0.04) !important;
+}
+
+.accept-button {
+    background-color: #1a1a1a !important;
+    color: white !important;
+}
+
+.accept-button:hover:not(:disabled) {
+    background-color: #333 !important;
+}
+
+.accept-button:disabled {
+    background-color: #e0e0e0 !important;
+    color: #999 !important;
+}
+
+
+@media (max-width: 768px) {
+    .request-details-content {
+        padding: 1rem;
+    }
+
+    .student-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .contact-info {
+        align-items: center;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        width: auto;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+} 

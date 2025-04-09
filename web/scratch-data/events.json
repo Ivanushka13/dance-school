@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Открытый урок по хип-хопу",
+    "description": "Бесплатный мастер-класс по основам хип-хоп танца.",
+    "startTime": "2024-08-12T18:00:00Z",
+    "picture": "https://via.placeholder.com/150/0000FF/FFFFFF?text=HipHop+Workshop",
+    "eventType": "Workshop"
+  },
+  {
+    "name": "Семинар по бальным танцам",
+    "description": "Углубленное изучение техник бальных танцев с приглашенным тренером.",
+    "startTime": "2024-09-05T14:00:00Z",
+    "picture": "https://via.placeholder.com/150/FF0000/FFFFFF?text=Ballroom+Seminar",
+    "eventType": "Seminar"
+  },
+  {
+    "name": "Конкурс по сальсе",
+    "description": "Ежегодный конкурс сальсы среди студентов школы.",
+    "startTime": "2024-10-22T16:00:00Z",
+    "picture": "https://via.placeholder.com/150/00FF00/FFFFFF?text=Salsa+Competition",
+    "eventType": "Competition"
+  },
+  {
+    "name": "Вечер латиноамериканских танцев",
+    "description": "Вечерние танцы в стиле бачата и сальса для всех желающих.",
+    "startTime": "2024-08-30T20:00:00Z",
+    "picture": "https://via.placeholder.com/150/FFFF00/000000?text=Latin+Dance+Party",
+    "eventType": "Party"
+  },
+  {
+    "name": "Интенсив по контемпорари",
+    "description": "Интенсивный курс по технике контемпорари для продвинутых танцоров.",
+    "startTime": "2024-11-10T10:00:00Z",
+    "picture": "https://via.placeholder.com/150/FF00FF/FFFFFF?text=Contemporary+Workshop",
+    "eventType": "Workshop"
+  }
+]

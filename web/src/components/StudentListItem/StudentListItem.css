@@ -1,0 +1,92 @@
+.student-card {
+    display: flex;
+    justify-content: center;
+    -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+    box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+    width: 26%;
+    height: 65%;
+    border-radius: 30px;
+    margin: 3rem 3rem 1rem;
+
+    .data-section {
+        justify-content: space-between;
+        .submit-btns {
+            margin-top: 2rem;
+            margin-left: 1.5rem;
+            margin-right: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+
+            .reject-btn {
+                width: 40%;
+                padding: 0.8rem;
+                background-color: black;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 1em;
+                cursor: pointer;
+            }
+
+            .accept-btn {
+                width: 40%;
+                padding: 0.8rem;
+                background-color: black;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 1rem;
+                cursor: pointer;
+            }
+
+        }
+    }
+
+    .data-section img {
+        margin-top: 1rem;
+        width: 10rem;
+        height: 10rem;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .student-container {
+
+        .user-name h2{
+            font-size: 1.5rem;
+        }
+
+        .user-name h3{
+            margin-top: -2rem;
+            margin-bottom: 1rem;
+            color: rgb(101, 99, 99);
+            font-size: 1rem;
+        }
+
+        .sub-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+
+            & i {
+                padding-left: 0.5rem;
+            }
+
+            .subLine {
+                width: 90%;
+                display: flex;
+                align-items: center;
+                border: 0.5px solid lightgray;
+                border-radius: 10px;
+                margin-bottom: 1rem;
+
+                & span {
+                    outline: none;
+                    background: transparent;
+                    padding: 0.5rem;
+                }
+            }
+        }
+    }
+}
