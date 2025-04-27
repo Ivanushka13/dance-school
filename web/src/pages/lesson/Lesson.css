@@ -1,0 +1,425 @@
+.group-lesson-content {
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+}
+
+.group-lesson-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.group-lesson-loader {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.group-lesson-info-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+}
+
+.group-lesson-info-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 2.5rem 0;
+  letter-spacing: -0.3px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1.2rem;
+}
+
+.group-lesson-info-section h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, #e6e6e6, #cccccc, #e6e6e6);
+  border-radius: 2px;
+}
+
+.group-lesson-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.8rem;
+  margin-bottom: 2.5rem;
+}
+
+.group-lesson-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group-lesson-info-label {
+  color: #888;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.group-lesson-info-value {
+  color: #333;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.9rem 1.2rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.group-lesson-info-value::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: #bbbbbb;
+  opacity: 0.5;
+}
+
+.group-lesson-info-value:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.group-lesson-description {
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #555;
+  background-color: #f9f9f9;
+  padding: 1.5rem 1.8rem;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.group-lesson-description::before {
+  content: "Описание";
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: white;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #777;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.lesson-group-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+.lesson-group-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.lesson-group-card-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.lesson-group-count {
+  background: #f5f5f5;
+  padding: 0.5rem 1.25rem;
+  border-radius: 30px;
+  font-weight: 500;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-group-count svg {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.lesson-group-count span:nth-child(2) {
+  color: #999;
+  margin: 0 0.25rem;
+}
+
+.lesson-group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.lesson-group-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.lesson-group-item:hover {
+  background: #f1f3f5;
+  transform: translateX(4px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.lesson-group-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-right: 1rem;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.lesson-group-item:hover .lesson-group-icon {
+  background-color: #e6e6e6;
+  transform: rotate(5deg);
+}
+
+.lesson-group-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-group-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.lesson-group-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.lesson-teachers-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+}
+
+.lesson-teachers-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.lesson-teachers-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 1.2rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.lesson-teachers-header h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #1a1a1a, #444);
+  border-radius: 10px;
+}
+
+.lesson-teachers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.lesson-teacher-item {
+  background-color: #f8f9fa;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+}
+
+.lesson-teacher-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+  background-color: #f0f2f5;
+}
+
+.lesson-teacher-item img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.8rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border: 2px solid white;
+}
+
+.lesson-teacher-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-teacher-name {
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.3rem;
+  font-size: 1rem;
+}
+
+.lesson-teacher-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.lesson-avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-right: 0.8rem;
+  text-transform: uppercase;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border: 2px solid white;
+}
+
+.lesson-action-buttons {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+  border-top: 1px solid #eee;
+}
+
+.buy-subscription-button,
+.join-lesson-button,
+.cancel-lesson-button {
+  min-width: 220px !important;
+  padding: 10px 20px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.buy-subscription-button:hover,
+.join-lesson-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.cancel-lesson-button {
+  border-color: #d32f2f !important;
+  color: #d32f2f !important;
+  background-color: white !important;
+}
+
+.cancel-lesson-button:hover {
+  background-color: rgba(211, 47, 47, 0.04) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.1) !important;
+}
+
+.participation-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #f1f8e9;
+  border: 1px solid #c5e1a5;
+  color: #4caf50;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin: 0 auto 20px;
+  max-width: fit-content;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.participation-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.participation-icon {
+  font-size: 22px;
+  color: #4caf50;
+}
+
+.group-back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  font-size: 0.9rem;
+  color: #555;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+.group-back-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+  background-color: #f8f9fa;
+}
+
+.group-back-button svg {
+  font-size: 1.1rem;
+}

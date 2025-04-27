@@ -30,16 +30,6 @@
     flex-wrap: wrap;
 }
 
-@media (max-width: 600px) {
-    .date-time-section {
-        flex-direction: column;
-    }
-    
-    .date-time-section > * {
-        width: 100%;
-    }
-}
-
 
 .register-wrapper .MuiTextField-root {
     background-color: white;

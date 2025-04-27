@@ -181,22 +181,3 @@
 .test-credentials-item:hover {
     background: rgba(255, 255, 255, 0.8);
 }
-
-@media (max-width: 480px) {
-    .login-form {
-        padding: 2rem;
-    }
-
-    .login-title {
-        font-size: 1.75rem;
-        margin-bottom: 2rem;
-    }
-
-    .input-group input {
-        padding: 0.875rem;
-    }
-
-    .links {
-        margin-top: 1.5rem;
-    }
-}

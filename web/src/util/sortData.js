@@ -1,13 +1,13 @@
 import {isSameDay, parseISO} from "date-fns";
 
 export function sortData(data, searchText, searchTags) {
-    const selectedTags = searchTags.filter(tag => tag.value).map(tag => tag.key.toLowerCase());
+    const selectedTags = searchTags.filter(tag => tag.value).map(tag => tag.id);
 
     return data.filter((event) => {
         const nameMatches = event.name.toLowerCase().replace(/\s/g, '')
             .includes(searchText.toLowerCase().replace(/\s/g, ''));
 
-        const tagsMatch = selectedTags.length === 0 || selectedTags.includes(event.eventType.toLowerCase());
+        const tagsMatch = selectedTags.length === 0 || selectedTags.includes(event.event_type_id);
 
         return nameMatches && tagsMatch;
     });

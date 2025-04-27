@@ -1,128 +1,165 @@
 import "./ClassRegister.css";
 import NavBar from "../../components/navbar/NavBar";
-import { useState } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {useState, useEffect} from "react";
+import {Dialog, DialogTitle, DialogContent, DialogActions, Button} from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import SearchBar from "../../components/searchBar/SearchBar";
+import {apiRequest} from "../../util/apiService";
+import PageLoader from "../../components/PageLoader/PageLoader";
 
 const ClassRegister = () => {
-    const [selectedClass, setSelectedClass] = useState(null);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const navigate = useNavigate();
 
-    const danceClasses = [
-        {
-            id: 1,
-            name: "Аргентинское танго",
-            description: "Классический стиль аргентинского танго",
-            image: "https://images.unsplash.com/photo-1535525153412-5a42439a210d?w=800&auto=format&fit=crop"
-        },
-        {
-            id: 2,
-            name: "Милонга",
-            description: "Быстрый и ритмичный стиль танго",
-            image: "https://images.unsplash.com/photo-1547153760-18fc86324498?w=800&auto=format&fit=crop"
-        },
-        {
-            id: 3,
-            name: "Вальс-танго",
-            description: "Танго в ритме вальса",
-            image: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=800&auto=format&fit=crop"
-        },
-        {
-            id: 4,
-            name: "Танго нуэво",
-            description: "Современная интерпретация танго",
-            image: "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&auto=format&fit=crop"
-        },
-        {
-            id: 5,
-            name: "Электро-танго",
-            description: "Танго под электронную музыку",
-            image: "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?w=800&auto=format&fit=crop"
-        },
-        {
-            id: 6,
-            name: "Салонное танго",
-            description: "Элегантный социальный стиль танго",
-            image: "https://images.unsplash.com/photo-1583318432730-a19c89692612?w=800&auto=format&fit=crop"
-        }
-    ];
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredClasses, setFilteredClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const handleClassClick = (danceClass) => {
-        setSelectedClass(danceClass);
-        setIsDialogOpen(true);
-    };
+  const navigate = useNavigate();
 
-    const handleDialogClose = () => {
-        setIsDialogOpen(false);
-        setSelectedClass(null);
-    };
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await apiRequest({
+          method: 'POST',
+          url: '/lessonTypes/search/full-info',
+          data: {terminated: false}
+        });
 
-    const handleRegistration = (type) => {
-        if (type === 'групповое') {
-            navigate('/groupLessons');
-        } else if (type === 'индивидуальное') {
-            navigate('/slotSelection');
-        }
-        handleDialogClose();
-    };
+        setClasses(response.lesson_types);
+        setLoading(false);
 
-    return (
-        <div>
-            <NavBar />
-            <main className="class-register-content">
-                <div className="class-register-header">
-                    <h1>Запись на занятия</h1>
-                    <p>Выберите интересующее вас направление танца</p>
-                </div>
-                
-                <div className="dance-classes-grid">
-                    {danceClasses.map((danceClass) => (
-                        <div 
-                            key={danceClass.id} 
-                            className="dance-class-card"
-                            onClick={() => handleClassClick(danceClass)}
-                        >
-                            <div className="dance-class-image" style={{ backgroundImage: `url(${danceClass.image})` }} />
-                            <div className="dance-class-info">
-                                <h2>{danceClass.name}</h2>
-                                <p>{danceClass.description}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
+      }
+    }
 
-                <Dialog 
-                    open={isDialogOpen} 
-                    onClose={handleDialogClose}
-                    className="registration-dialog"
-                >
-                    <DialogTitle>
-                        Тип занятия: {selectedClass?.name}
-                    </DialogTitle>
-                    <DialogContent>
-                        <p>Выберите предпочитаемый формат занятия:</p>
-                    </DialogContent>
-                    <DialogActions className="dialog-buttons">
-                        <Button 
-                            onClick={() => handleRegistration('индивидуальное')}
-                            variant="contained"
-                            className="individual-button"
-                        >
-                            Индивидуальное занятие
-                        </Button>
-                        <Button 
-                            onClick={() => handleRegistration('групповое')}
-                            variant="contained"
-                            className="group-button"
-                        >
-                            Групповое занятие
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </main>
-        </div>
+    fetchClasses();
+  }, []);
+
+
+  useEffect(() => {
+    setFilteredClasses(
+      classes.filter(item =>
+        item.dance_style.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
+  }, [searchTerm, classes]);
+
+  const handleClassClick = (lesson) => {
+    setSelectedClass(lesson);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setSelectedClass(null);
+  };
+
+  const handleRegistration = (type) => {
+    if (type === 'group') {
+      navigate('/group-lessons', {state: {selectedLessonType: selectedClass}});
+    } else if (type === 'indiv') {
+      navigate('/slot-selection', {state: {selectedLessonType: selectedClass}});
+    }
+    handleDialogClose();
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
+  return (
+    <div>
+      <NavBar/>
+      <main className="class-register-content">
+        <PageLoader loading={loading} text="Загрузка занятий...">
+          <div className="class-register-header">
+            <h1>Запись на занятия</h1>
+            <p>Выберите интересующее вас направление танца</p>
+          </div>
+
+          <SearchBar
+            placeholder="Поиск стиля танца..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onClear={clearSearch}
+          />
+
+          {filteredClasses.length === 0 ? (
+            <div className="no-results">
+              <p>Стили танца не найдены. Попробуйте изменить запрос.</p>
+            </div>
+          ) : (
+            <div className="dance-classes-grid">
+              {filteredClasses.map((danceClass) => (
+                <div
+                  key={danceClass.id}
+                  className="dance-class-card"
+                  onClick={() => handleClassClick(danceClass)}
+                >
+                  <div className="dance-class-image"
+                       style={{backgroundImage: `url(${danceClass.dance_style.photo_url})`}}/>
+                  <div className="dance-class-info">
+                    <h2>{danceClass.dance_style.name}</h2>
+                    <p>{danceClass.dance_style.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Dialog
+            open={isDialogOpen}
+            onClose={handleDialogClose}
+            className="registration-dialog"
+          >
+            <DialogTitle>
+              Выбранное направление: {selectedClass?.dance_style.name}
+            </DialogTitle>
+            {selectedClass?.is_group ? (
+              <DialogContent>
+                <p>Тип занятия: <strong>Групповое</strong></p>
+                <p>Групповые занятия проходят по расписанию в составе постоянной группы учеников с фиксированной
+                  программой обучения.</p>
+              </DialogContent>
+            ) : (
+              <DialogContent>
+                <p>Тип занятия: <strong>Индивидуальное</strong></p>
+                <p>Индивидуальные занятия проходят в формате "один на один" с преподавателем в удобное для вас
+                  время.</p>
+              </DialogContent>
+            )}
+            <DialogActions className="dialog-buttons">
+              {selectedClass?.is_group ? (
+                <Button
+                  onClick={() => handleRegistration('group')}
+                  variant="contained"
+                  className="group-button"
+                >
+                  Перейти к выбору группы
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleRegistration('indiv')}
+                  variant="contained"
+                  className="individual-button"
+                >
+                  Выбрать время занятия
+                </Button>
+              )}
+            </DialogActions>
+          </Dialog>
+        </PageLoader>
+      </main>
+    </div>
+  );
 };
 
 export default ClassRegister; 

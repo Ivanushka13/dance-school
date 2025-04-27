@@ -83,32 +83,3 @@
 .logout .title {
     color: #d32f2f;
 }
-
-@media (max-width: 1200px) {
-    .navbar {
-        padding: 1rem;
-    }
-    
-    .item {
-        padding: 0.5rem 1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        padding: 1rem 0.5rem;
-    }
-
-    .items {
-        flex-direction: column;
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    .item {
-        width: 100%;
-        justify-content: center;
-        margin: 0.25rem 0;
-    }
-}

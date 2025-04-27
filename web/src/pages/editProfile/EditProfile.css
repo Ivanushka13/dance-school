@@ -172,28 +172,3 @@
     background: #333333;
     transform: translateY(-1px);
 }
-
-@media (max-width: 768px) {
-    .edit-profile-container {
-        margin: 1rem auto;
-    }
-
-    .edit-profile-form {
-        padding: 1.5rem;
-    }
-
-    .form-section {
-        padding: 1.5rem;
-    }
-
-    .buttons-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .main-info-buttons .save-button,
-    .cancel-button,
-    .save-button {
-        min-width: 100%;
-    }
-} 

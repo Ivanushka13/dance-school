@@ -85,17 +85,3 @@
     height: 18px;
     color: #666;
 }
-
-@media (max-width: 768px) {
-    .event-card {
-        margin-bottom: 1.5rem;
-    }
-
-    .event-container {
-        padding: 1rem;
-    }
-
-    .main-info h2 {
-        font-size: 1.25rem;
-    }
-}

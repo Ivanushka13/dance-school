@@ -7,15 +7,26 @@ import { PiSignInBold } from "react-icons/pi";
 import { PiUserCheckFill } from "react-icons/pi";
 import { PiCreditCardFill } from "react-icons/pi";
 import { PiSignOutBold } from "react-icons/pi";
-import {useAuth} from "../../context/AuthContext";
+import {useDispatch, useSelector} from "react-redux";
+import {clearUser} from "../../redux/slices/userSlice";
+import {logout} from "../../util/apiService";
+import {clearSession} from "../../redux/slices/sessionSlice";
+import {clearLevel} from "../../redux/slices/levelSlice";
 
 const NavBar = () => {
-    const { user, logout } = useAuth();
+
+    const role = useSelector((state) => state.session.role);
+    const dispatch = useDispatch();
+
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        logout();
-        navigate('/login');
+        dispatch(clearUser());
+        dispatch(clearSession());
+        dispatch(clearLevel());
+        logout().then(() => {
+            navigate('/login');
+        });
     };
 
     const commonLinks = [
@@ -28,14 +39,14 @@ const NavBar = () => {
 
     const teacherLinks = [
         {
-            to: "/schedule",
-            icon: <PiCalendarDotsBold />,
-            title: "Расписание"
-        },
-        {
             to: "/events",
             icon: <PiStarFill />,
             title: "Мероприятия"
+        },
+        {
+            to: "/schedule",
+            icon: <PiCalendarDotsBold />,
+            title: "Расписание"
         },
         {
             to: "/requests",
@@ -61,13 +72,13 @@ const NavBar = () => {
             title: "Расписание"
         },
         {
-            to: "/classRegister",
+            to: "/class-register",
             icon: <PiSignInBold />,
             title: "Запись"
         }
     ];
 
-    const links = user?.role === "teacher" ? teacherLinks : studentLinks;
+    const links = role === "teacher" ? teacherLinks : studentLinks;
 
     const renderNavItem = (link) => (
         <Link to={link.to} key={link.to} style={{textDecoration: "none"}}>

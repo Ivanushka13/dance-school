@@ -6,7 +6,7 @@
 
 .class-register-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .class-register-header h1 {
@@ -16,6 +16,21 @@
 }
 
 .class-register-header p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.no-results p {
     font-size: 1.1rem;
     color: #666;
 }
@@ -65,82 +80,81 @@
     margin: 0;
 }
 
-.registration-dialog {
-    .MuiDialog-paper {
-        border-radius: 20px;
-        padding: 1rem;
-    }
+.registration-dialog .MuiDialog-paper {
+    border-radius: 24px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    max-width: 500px !important;
+    width: 100% !important;
+    margin: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    background-color: #fafafa !important;
 }
 
-.MuiDialogTitle-root {
-    font-size: 1.5rem !important;
+.registration-dialog .MuiDialogTitle-root {
+    font-size: 1.25rem !important;
     color: #1a1a1a !important;
-    padding: 1.5rem 1.5rem 1rem !important;
+    padding: 1.75rem 2rem 1.5rem !important;
+    font-weight: 700 !important;
+    background-color: #fafafa !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
-.MuiDialogContent-root {
-    padding: 1rem 1.5rem !important;
-    
-    p {
-        color: #666;
-        font-size: 1.1rem;
-        margin: 0;
-    }
+.registration-dialog .MuiDialogTitle-root::after {
+    display: none;
 }
 
-.dialog-buttons {
-    padding: 2rem 1.5rem !important;
+.registration-dialog .MuiDialogContent-root {
+    padding: 1.5rem 2rem !important;
+    background-color: #fafafa !important;
+}
+
+.registration-dialog .MuiDialogContent-root p {
+    color: #555;
+    font-size: 1rem;
+    margin: 0.5rem 0 !important;
+    line-height: 1.6;
+}
+
+.registration-dialog .MuiDialogContent-root p:first-of-type {
+    border-left: 3px solid #1a1a1a;
+    padding-left: 12px;
+    font-weight: 500;
+}
+
+.registration-dialog .dialog-buttons {
+    padding: 1.5rem 2rem 2rem !important;
     display: flex;
     gap: 1.5rem;
     justify-content: center;
+    background-color: #fafafa !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
-.individual-button, .group-button {
+.registration-dialog .individual-button,
+.registration-dialog .group-button {
     min-width: 240px !important;
     height: 52px !important;
     font-size: 1rem !important;
     text-transform: none !important;
-    border-radius: 8px !important;
-    transition: all 0.2s ease !important;
+    border-radius: 10px !important;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
     background-color: #1a1a1a !important;
     color: white !important;
     border: none !important;
-    letter-spacing: 0.3px !important;
-    box-shadow: none !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+    font-weight: 500 !important;
 }
 
-.individual-button:hover, .group-button:hover {
+.registration-dialog .individual-button:hover,
+.registration-dialog .group-button:hover {
     background-color: #333 !important;
-    transform: translateY(-1px);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15) !important;
 }
 
-@media (max-width: 768px) {
-    .class-register-content {
-        padding: 1rem;
-    }
-
-    .class-register-header h1 {
-        font-size: 2rem;
-    }
-
-    .dance-classes-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .dialog-buttons {
-        padding: 1.5rem !important;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .individual-button, .group-button {
-        width: 100% !important;
-    }
+.registration-dialog .MuiDialogContent-root p strong {
+    font-weight: 600;
+    color: #1a1a1a;
 }
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .dance-classes-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-} 

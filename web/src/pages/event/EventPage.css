@@ -101,26 +101,3 @@
     gap: 2rem;
     padding: 1rem 0;
 }
-
-@media (max-width: 768px) {
-    .body {
-        margin: 1rem;
-        padding: 0;
-    }
-
-    .search-bar {
-        flex-direction: column;
-    }
-
-    .search {
-        max-width: 100%;
-    }
-
-    .filter-btn {
-        align-self: flex-end;
-    }
-
-    .events-section {
-        grid-template-columns: 1fr;
-    }
-}

@@ -14,19 +14,19 @@ export const EventListItem = ({ event }) => {
         <div className="event-card">
             <div className="image-section">
                 <img
-                    src={event.picture}
+                    src={event.photo_url}
                     alt={event.name}
                 />
             </div>
             <div className="event-container">
-                <span className="event-type">{event.eventType}</span>
+                <span className="event-type">{event.event_type.name}</span>
                 <div className="main-info">
                     <h2>{event.name}</h2>
                     <p>{event.description}</p>
                 </div>
                 <div className="event-date">
                     <MdAccessTime />
-                    <span>{formatDate(event.startTime)}</span>
+                    <span>{formatDate(event.start_time)}</span>
                 </div>
             </div>
         </div>

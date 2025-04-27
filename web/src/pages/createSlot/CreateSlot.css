@@ -22,18 +22,3 @@
     display: flex;
     gap: 1rem;
 }
-
-@media (max-width: 600px) {
-    .create-slot-wrapper {
-        padding: 1rem 0;
-    }
-
-    .create-slot-content {
-        padding: 1.5rem;
-    }
-
-    .time-section {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-} 
