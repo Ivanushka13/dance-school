@@ -12,13 +12,6 @@
   gap: 2rem;
 }
 
-.group-lesson-loader {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-  color: #666;
-}
-
 .group-lesson-info-section {
   background: white;
   border-radius: 16px;
@@ -376,9 +369,9 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background-color: #f1f8e9;
-  border: 1px solid #c5e1a5;
-  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  color: #2e7d32;
   padding: 12px 20px;
   border-radius: 10px;
   margin: 0 auto 20px;
@@ -395,7 +388,7 @@
 
 .participation-icon {
   font-size: 22px;
-  color: #4caf50;
+  color: #2e7d32;
 }
 
 .group-back-button {
@@ -422,4 +415,299 @@
 
 .group-back-button svg {
   font-size: 1.1rem;
+}
+
+.modal-subscription-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: backdropFadeIn 0.25s ease;
+  backdrop-filter: blur(2px);
+}
+
+.modal-subscription-modal-container {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 700px;
+  max-width: 90%;
+  padding: 0;
+  overflow: hidden;
+  animation: scaleIn 0.3s ease-out;
+  transform-origin: center;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modal-subscription-modal-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.modal-subscription-modal-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.modal-subscription-modal-close {
+  background: transparent;
+  border: none;
+  color: #777;
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-subscription-modal-close:hover {
+  background-color: #f5f5f5;
+  color: #333;
+  transform: rotate(90deg);
+}
+
+.modal-subscription-modal-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.modal-subscription-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  background-color: #fafafa;
+}
+
+.modal-subscription-modal-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.modal-subscription-confirm-button {
+  background-color: #1a1a1a;
+  color: white;
+  border: none;
+}
+
+.modal-subscription-confirm-button:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-subscription-confirm-button:disabled {
+  background-color: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.modal-subscription-cancel-button {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.modal-subscription-cancel-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+  transform: translateY(-2px);
+}
+
+.modal-subscription-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-subscription-card {
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  height: 100%;
+}
+
+.modal-subscription-card:hover {
+  border-color: #ccc;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+.modal-subscription-card.modal-selected {
+  border-color: #1a1a1a;
+  background-color: rgba(26, 26, 26, 0.02);
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.modal-subscription-card.modal-selected:active {
+  transform: scale(0.98);
+}
+
+.modal-subscription-card:active {
+  transform: scale(0.98);
+  transition: all 0.15s ease;
+}
+
+.modal-subscription-card-icon {
+  width: 42px;
+  height: 42px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  color: #555;
+  font-size: 20px;
+  transition: all 0.25s ease;
+}
+
+.modal-subscription-card:hover .modal-subscription-card-icon {
+  background-color: #eee;
+  transform: scale(1.05);
+}
+
+.modal-subscription-card.modal-selected .modal-subscription-card-icon {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.modal-subscription-card-content {
+  flex-grow: 1;
+}
+
+.modal-subscription-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #222;
+  transition: all 0.25s ease;
+}
+
+.modal-subscription-card:hover .modal-subscription-card-title {
+  color: #000;
+}
+
+.modal-subscription-card-description {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.modal-subscription-card-lessons-left {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background-color: #f7f7f7;
+}
+
+.modal-lessons-left-label {
+  font-size: 0.8rem;
+  color: #777;
+  font-weight: 400;
+}
+
+.modal-lessons-left-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  padding: 3px 8px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.modal-subscription-card-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #1a1a1a;
+  font-size: 18px;
+  opacity: 0;
+  transition: all 0.25s ease;
+  transform: scale(0.8);
+}
+
+.modal-subscription-card.modal-selected .modal-subscription-card-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+  }
 }

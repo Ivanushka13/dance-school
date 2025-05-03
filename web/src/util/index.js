@@ -1,10 +1,24 @@
 import {sortData, filterLessonsByDate} from './sortData';
 import {loadLevelFromStorage, loadSessionFromStorage, loadUserFromStorage} from './loadData'
-import {createISODate, timeToUTC, formatTimeToHM, formatDateToDMY, convertDateToUTC} from "./dateConverter";
+import {
+  createISODate,
+  getDateFromISOstring,
+  getTimeFromISOstring,
+  timeToUTC,
+  formatTimeToHM,
+  formatDateToDMY,
+  convertDateToUTC,
+  formatTime,
+  removeTimezone,
+} from "./dateConverter";
 
 export {
   createISODate,
+  getDateFromISOstring,
+  getTimeFromISOstring,
+  removeTimezone,
   convertDateToUTC,
+  formatTime,
   timeToUTC,
   formatTimeToHM,
   formatDateToDMY,

@@ -46,6 +46,7 @@
     flex-direction: column;
     margin-bottom: 2rem;
     padding: 2rem;
+    padding-bottom: 1rem;
     background-color: #f8f9fa;
     border-radius: 16px;
     border: 1px solid rgba(0, 0, 0, 0.04);
@@ -55,7 +56,6 @@
 .student-section {
     display: flex;
     align-items: center;
-    margin-bottom: 1.5rem;
 }
 
 .student-name-level {
@@ -104,6 +104,7 @@
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
     cursor: default;
+    margin-top: 0.7rem;
 }
 
 .level-badge:hover {
@@ -456,4 +457,64 @@
     transition: opacity 0.3s ease;
     white-space: nowrap;
     pointer-events: none;
+}
+
+.no-classrooms-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.no-classrooms-card {
+    width: 100%;
+    max-width: 600px;
+    padding: 1.2rem 2rem;
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.no-classrooms-card .text-content {
+    text-align: left;
+}
+
+.no-classrooms-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 0.3rem;
+}
+
+.no-classrooms-card p {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.no-classrooms-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: white;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.no-classrooms-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }

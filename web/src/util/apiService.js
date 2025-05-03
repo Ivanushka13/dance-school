@@ -1,7 +1,6 @@
 import axios from 'axios';
 import localforage from 'localforage';
 
-
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
   timeout: 10000,
@@ -42,7 +41,7 @@ const apiRequest = async ({
     if (error.response) {
       const status = error.response.status;
       const message = error.response.data?.detail || 'Ошибка сервера';
-      console.log(JSON.stringify(error.response));
+      console.error(`Exception occurred during request: url: ${url}, status: ${status}, message: ${message}`);
       throw new Error(`Ошибка ${status}: ${message}`);
     } else if (error.request) {
       throw new Error('Нет соединения с сервером. Проверьте интернет.');

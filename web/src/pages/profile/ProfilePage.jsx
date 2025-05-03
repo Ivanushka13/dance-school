@@ -10,9 +10,9 @@ import {
   MdCardMembership,
   MdGroups,
   MdPerson,
-  MdOutlineClass
+  MdOutlineClass,
+  MdSchedule
 } from 'react-icons/md';
-import InformationModal from "../../components/modal/info/InformationModal";
 import {useEffect, useState} from "react";
 import PageLoader from "../../components/PageLoader/PageLoader";
 
@@ -26,7 +26,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(user && session && level) {
+    if (user && session && level) {
       setLoading(false);
     }
   }, [user, session, level])
@@ -48,6 +48,10 @@ const ProfilePage = () => {
   const handleApplications = () => {
     navigate('/applications');
   };
+  
+  const handleSlots = () => {
+    navigate('/slots');
+  };
 
   const handleGroupClick = (group_id) => {
     navigate(`/group/${group_id}`);
@@ -56,11 +60,16 @@ const ProfilePage = () => {
   const renderUserInfo = () => (
     <div className="profile-info">
       <div className="profile-header">
-        <h2>{user.first_name} {user.last_name} {user?.middle_name}</h2>
+        <h2>{user.last_name} {user.first_name} {user?.middle_name}</h2>
         <div className="profile-actions">
           {session.role === 'student' && (
             <button className="profile-button" onClick={handleApplications}>
               <MdAssignment/> Мои заявки
+            </button>
+          )}
+          {session.role === 'teacher' && (
+            <button className="profile-button" onClick={handleSlots}>
+              <MdSchedule/> Мои слоты
             </button>
           )}
           <button className="edit-button" onClick={handleEdit}>
@@ -101,21 +110,21 @@ const ProfilePage = () => {
                 {session.subscriptions
                   .filter(sub => sub.payment_id !== null)
                   .map(sub => (
-                    <div key={sub.id} className="subscription-card active-subscription">
-                      <div className="card-header">
-                        <h2 className="card-title">{sub.subscription_template.name}</h2>
-                        <div className="active-badge">Активен</div>
+                    <div key={sub.id} className="profile-subscription-card profile-active-subscription">
+                      <div className="profile-active-badge">Активен</div>
+                      <div className="profile-card-header">
+                        <h2 className="profile-card-title">{sub.subscription_template.name}</h2>
                       </div>
-                      <div className="card-details">
-                        <div className="detail-item">
-                          <MdAssessment className="detail-icon"/>
-                          <span className="detail-text">
+                      <div className="profile-card-details">
+                        <div className="profile-detail-item">
+                          <MdAssessment className="profile-detail-icon"/>
+                          <span className="profile-detail-text">
                           Количество занятий: {sub.subscription_template.lesson_count}
                         </span>
                         </div>
-                        <div className="detail-item">
-                          <MdAccessTime className="detail-icon"/>
-                          <span className="detail-text">
+                        <div className="profile-detail-item">
+                          <MdAccessTime className="profile-detail-icon"/>
+                          <span className="profile-detail-text">
                           Действует до: {formatDate(sub.subscription_template.expiration_date)}
                         </span>
                         </div>
@@ -157,11 +166,11 @@ const ProfilePage = () => {
   );
 
   return (
-    <div className="page-wrapper">
-      <NavBar/>
-      <PageLoader loading={loading} text="Загрузка данных...">
+    <div className="profile-page-wrapper">
+        <NavBar/>
+        <PageLoader loading={loading} text="Загрузка данных...">
         <div className="profile-container">
-          {renderUserInfo() }
+          {renderUserInfo()}
         </div>
       </PageLoader>
     </div>

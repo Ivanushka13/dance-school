@@ -1,12 +1,4 @@
 import React, {useState} from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  MenuItem,
-  TextField,
-  Button
-} from '@mui/material';
 import {TimePicker} from '@mui/x-date-pickers/TimePicker';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -17,18 +9,28 @@ import {apiRequest} from "../../util/apiService";
 import {timeToUTC} from "../../util";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import {useSelector} from "react-redux";
+import {MdError} from 'react-icons/md';
+import {
+  Container,
+  Typography,
+  Box,
+  MenuItem,
+  TextField,
+  Button
+} from '@mui/material';
 
 const CreateSlot = () => {
 
-  const [loading, setLoading] = useState(true);
+  const id = useSelector(state => state.session.id);
+
+  const [loading, setLoading] = useState(false);
   const [weekDay, setWeekDay] = useState('');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalInfo, setModalInfo] = useState({
-    title: '',
-    message: ''
-  });
+  const [modalInfo, setModalInfo] = useState({});
+  const [errors, setErrors] = useState({});
 
   const weekDays = [
     {value: 0, label: 'Понедельник'},
@@ -40,11 +42,76 @@ const CreateSlot = () => {
     {value: 6, label: 'Воскресенье'}
   ];
 
+  const handleWeekDayChange = (e) => {
+    setWeekDay(e.target.value);
+    if (errors.weekDay) {
+      setErrors(prev => ({
+        ...prev,
+        weekDay: ''
+      }));
+    }
+  };
+
+  const handleStartTimeChange = (value) => {
+    setStartTime(value);
+    if (errors.startTime) {
+      setErrors(prev => ({
+        ...prev,
+        startTime: ''
+      }));
+    }
+  };
+
+  const handleEndTimeChange = (value) => {
+    setEndTime(value);
+    if (errors.endTime) {
+      setErrors(prev => ({
+        ...prev,
+        endTime: ''
+      }));
+    }
+  };
+
+  const clearForm = () => {
+    setWeekDay('');
+    setStartTime(null);
+    setEndTime(null);
+    setErrors({});
+  }
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (weekDay === '') {
+      newErrors.weekDay = 'Выберите день недели';
+    }
+    
+    if (!startTime) {
+      newErrors.startTime = 'Укажите время начала';
+    }
+    
+    if (!endTime) {
+      newErrors.endTime = 'Укажите время окончания';
+    } else if (startTime && endTime && startTime >= endTime) {
+      newErrors.endTime = 'Время окончания должно быть позже времени начала';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+    
+    setLoading(true);
+    
     const request = {
       day_of_week: weekDay,
       start_time: timeToUTC(startTime),
       end_time: timeToUTC(endTime),
+      teacher_id: id
     };
 
     try {
@@ -54,22 +121,23 @@ const CreateSlot = () => {
         data: request
       });
 
-      setLoading(false);
-
       setModalInfo({
         title: 'Слот успешно создан',
-        message: '',
+        message: ''
       });
       setShowModal(true);
+      
+      clearForm();
+
+      setLoading(false);
 
     } catch (error) {
-      console.log(error.message);
-      setLoading(false);
       setModalInfo({
         title: 'Ошибка во время создания слота',
         message: error.message || String(error),
       });
       setShowModal(true);
+      setLoading(false);
     }
   };
 
@@ -84,72 +152,107 @@ const CreateSlot = () => {
             </Typography>
 
             <Box className="form-section">
-              <TextField
-                select
-                fullWidth
-                label="День недели"
-                value={weekDay}
-                onChange={(e) => setWeekDay(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#1a1a1a'
-                    }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#1a1a1a'
-                  }
-                }}
-              >
-                {weekDays.map((day) => (
-                  <MenuItem key={day.value} value={day.value}>
-                    {day.label}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <div className="form-group">
+                <label className="form-label required">День недели</label>
+                <TextField
+                  select
+                  fullWidth
+                  value={weekDay}
+                  onChange={handleWeekDayChange}
+                  className={`form-control ${errors.weekDay ? 'error' : ''}`}
+                  InputProps={{
+                    className: errors.weekDay ? 'error' : ''
+                  }}
+                >
+                  {weekDays.map((day) => (
+                    <MenuItem key={day.value} value={day.value}>
+                      {day.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                {errors.weekDay && (
+                  <div className="error-text">
+                    <MdError/>
+                    <span>{errors.weekDay}</span>
+                  </div>
+                )}
+              </div>
 
               <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
                 <Box className="time-section">
-                  <TimePicker
-                    label="Время начала"
-                    value={startTime}
-                    onChange={setStartTime}
-                    ampm={false}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите время',
-                        toolbarFormat: 'HH:mm'
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок'
-                        }
-                      }
-                    }}
-                  />
-                  <TimePicker
-                    label="Время окончания"
-                    value={endTime}
-                    onChange={setEndTime}
-                    ampm={false}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите время',
-                        toolbarFormat: 'HH:mm'
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок'
-                        }
-                      }
-                    }}
-                  />
+                  <div className="form-group">
+                    <label className="form-label required">Время начала</label>
+                    <TimePicker
+                      value={startTime}
+                      onChange={handleStartTimeChange}
+                      ampm={false}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.startTime ? 'time-picker-error' : '',
+                          InputProps: {
+                            className: errors.startTime ? 'error' : ''
+                          }
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите время',
+                          toolbarFormat: 'ЧЧ:мм'
+                        },
+                        actionBar: {
+                          actions: ['accept'],
+                          sx: {
+                            display: 'flex',
+                            justifyContent: 'center',
+                            padding: '8px',
+                            color: "black"
+                          },
+                        },
+                      }}
+                    />
+                    {errors.startTime && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.startTime}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label required">Время окончания</label>
+                    <TimePicker
+                      value={endTime}
+                      onChange={handleEndTimeChange}
+                      ampm={false}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.endTime ? 'time-picker-error' : '',
+                          InputProps: {
+                            className: errors.endTime ? 'error' : ''
+                          }
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите время',
+                          toolbarFormat: 'ЧЧ:мм'
+                        },
+                        actionBar: {
+                          actions: ['accept'],
+                          sx: {
+                            display: 'flex',
+                            justifyContent: 'center',
+                            padding: '8px',
+                            color: "black"
+                          },
+                        },
+                      }}
+                    />
+                    {errors.endTime && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.endTime}</span>
+                      </div>
+                    )}
+                  </div>
                 </Box>
               </LocalizationProvider>
 
@@ -159,16 +262,6 @@ const CreateSlot = () => {
                 size="large"
                 onClick={handleSubmit}
                 className="submit-button"
-                sx={{
-                  backgroundColor: '#1a1a1a',
-                  marginTop: '2rem',
-                  height: '48px',
-                  '&:hover': {
-                    backgroundColor: '#333',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                  }
-                }}
               >
                 Создать слот
               </Button>

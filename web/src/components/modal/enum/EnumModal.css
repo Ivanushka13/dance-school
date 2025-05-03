@@ -1,0 +1,56 @@
+.enum-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 0px;
+  margin-bottom: 0.5rem;
+}
+
+.enum-option {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.enum-option:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  border-color: #ddd;
+}
+
+.enum-option:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.enum-option-icon {
+  font-size: 1.5rem;
+  color: #333;
+  margin-right: 15px;
+}
+
+.enum-option-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.enum-option-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.modal-message {
+  padding: 0 15px;
+  text-align: center;
+} 

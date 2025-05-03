@@ -21,7 +21,7 @@ import {styled} from '@mui/material/styles';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, DatePicker, TimePicker} from '@mui/x-date-pickers';
 import {ru} from 'date-fns/locale';
-import {MdPerson, MdRoom, MdClass, MdClose, MdSearch} from 'react-icons/md';
+import {MdPerson, MdRoom, MdClass, MdClose, MdSearch, MdError} from 'react-icons/md';
 import NavBar from '../../components/navbar/NavBar';
 import './Register.css';
 import {apiRequest} from "../../util/apiService";
@@ -29,6 +29,7 @@ import {createISODate} from "../../util";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import {useNavigate} from "react-router-dom";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
   '& .MuiDialog-paper': {
@@ -85,7 +86,26 @@ styled(Button)({
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
   }
 });
+
+const fetchClasses = async (
+  date_from,
+  date_to,
+  are_neighbours_allowed
+) => {
+  return await apiRequest({
+    method: 'POST',
+    url: '/classrooms/search/available',
+    data: {
+      date_from: date_from,
+      date_to: date_to,
+      are_neighbours_allowed: are_neighbours_allowed
+    }
+  });
+}
+
 const Register = () => {
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState([]);
@@ -108,40 +128,29 @@ const Register = () => {
   const [confirmModalInfo, setConfirmModalInfo] = useState({});
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const available_classrooms = await apiRequest({
-          method: 'POST',
-          url: '/classrooms/search/available',
-          data: {
-            date_from: createISODate(startDate, startTime),
-            date_to: createISODate(endDate, endTime),
-            are_neighbours_allowed: allowNeighbors
-          }
-        });
-
-        setClasses(available_classrooms.classrooms);
+    if (startDate !== null && endDate !== null && startTime !== null && endTime !== null) {
+      fetchClasses(
+        createISODate(startDate, startTime),
+        createISODate(endDate, endTime),
+        allowNeighbors
+      ).then((response) => {
+        setClasses(response.classrooms);
         setClassroomSelection(true);
-
-
-      } catch (error) {
+      }).catch((error) => {
+        setClassroomSelection(false);
         setModalInfo({
           title: "Ошибка во время загрузки залов",
           message: error.message || String(error)
         });
         setShowInfoModal(true);
         setLoading(false);
-      }
-    }
-
-    if (startDate !== null && endDate !== null && startTime !== null && endTime !== null) {
-      fetchClasses();
+      });
     } else {
       setClassroomSelection(false);
     }
-
   }, [startDate, endDate, startTime, endTime, allowNeighbors]);
 
   useEffect(() => {
@@ -182,7 +191,7 @@ const Register = () => {
         });
 
         setStudents(response.students);
-        setLoading(true);
+        setLoading(false);
 
       } catch (error) {
         setModalInfo({
@@ -197,6 +206,41 @@ const Register = () => {
     fetchStudents();
   }, []);
 
+  const handleLessonNameChange = (e) => {
+    setLessonName(e.target.value);
+    if (errors.lessonName) {
+      setErrors(prev => ({...prev, lessonName: ''}));
+    }
+  };
+
+  const handleStartDateChange = (value) => {
+    setStartDate(value);
+    if (errors.startDate) {
+      setErrors(prev => ({...prev, startDate: ''}));
+    }
+  };
+
+  const handleEndDateChange = (value) => {
+    setEndDate(value);
+    if (errors.endDate) {
+      setErrors(prev => ({...prev, endDate: ''}));
+    }
+  };
+
+  const handleStartTimeChange = (value) => {
+    setStartTime(value);
+    if (errors.startTime) {
+      setErrors(prev => ({...prev, startTime: ''}));
+    }
+  };
+
+  const handleEndTimeChange = (value) => {
+    setEndTime(value);
+    if (errors.endTime) {
+      setErrors(prev => ({...prev, endTime: ''}));
+    }
+  };
+
   const handleDialogOpen = (type) => {
     setOpenDialog(type);
     setSearchQuery('');
@@ -206,16 +250,39 @@ const Register = () => {
     setOpenDialog(null);
   };
 
+  const clearForm = () => {
+    setClassroomSelection(false);
+    setLessonName('');
+    setStartDate(null);
+    setEndDate(null);
+    setStartTime(null);
+    setEndTime(null);
+    setSelectedClass(null);
+    setSelectedStudent(null);
+    setSelectedLessonType(null);
+    setDescription('');
+    setAllowNeighbors(false);
+  }
+
   const handleSelect = (type, value) => {
     switch (type) {
       case 'room':
         setSelectedClass(value);
+        if (errors.selectedClass) {
+          setErrors(prev => ({...prev, selectedClass: ''}));
+        }
         break;
       case 'student':
         setSelectedStudent(value);
+        if (errors.selectedStudent) {
+          setErrors(prev => ({...prev, selectedStudent: ''}));
+        }
         break;
       case 'lessonType':
         setSelectedLessonType(value);
+        if (errors.selectedLessonType) {
+          setErrors(prev => ({...prev, selectedLessonType: ''}));
+        }
         break;
       default:
         break;
@@ -223,7 +290,61 @@ const Register = () => {
     handleDialogClose();
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!lessonName.trim()) {
+      newErrors.lessonName = 'Введите название занятия';
+    }
+
+    if (!startDate) {
+      newErrors.startDate = 'Выберите дату начала';
+    }
+
+    if (!endDate) {
+      newErrors.endDate = 'Выберите дату окончания';
+    } else if (startDate && endDate && startDate > endDate) {
+      newErrors.endDate = 'Дата окончания должна быть позже даты начала';
+    }
+
+    if (!startTime) {
+      newErrors.startTime = 'Выберите время начала';
+    }
+
+    if (!endTime) {
+      newErrors.endTime = 'Выберите время окончания';
+    } else if (
+      startTime &&
+      endTime &&
+      startDate &&
+      endDate &&
+      startDate.getTime() === endDate.getTime() &&
+      startTime >= endTime
+    ) {
+      newErrors.endTime = 'Время окончания должно быть позже времени начала';
+    }
+
+    if (!selectedClass) {
+      newErrors.selectedClass = 'Выберите зал';
+    }
+
+    if (!selectedStudent) {
+      newErrors.selectedStudent = 'Выберите ученика';
+    }
+
+    if (!selectedLessonType) {
+      newErrors.selectedLessonType = 'Выберите стиль танца';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setConfirmModalInfo({
       title: 'Подтверждение создания занятия',
       message: 'Вы уверены, что хотите создать занятие?',
@@ -264,7 +385,7 @@ const Register = () => {
       });
       setShowInfoModal(true);
 
-      console.log(response);
+      clearForm();
 
     } catch (error) {
       setShowConfirmModal(false);
@@ -312,238 +433,322 @@ const Register = () => {
             </Typography>
 
             <Box className="form-section">
-              <TextField
-                fullWidth
-                label="Название занятия"
-                value={lessonName}
-                onChange={(e) => setLessonName(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#1a1a1a'
+              <div className="form-group">
+                <label className="form-label required">Название занятия</label>
+                <TextField
+                  fullWidth
+                  value={lessonName}
+                  onChange={handleLessonNameChange}
+                  className={`form-control ${errors.lessonName ? 'error' : ''}`}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#1a1a1a'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#1a1a1a'
                     }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#1a1a1a'
-                  }
-                }}
-              />
+                  }}
+                />
+                {errors.lessonName && (
+                  <div className="error-text">
+                    <MdError/>
+                    <span>{errors.lessonName}</span>
+                  </div>
+                )}
+              </div>
 
               <LocalizationProvider
                 dateAdapter={AdapterDateFns}
                 adapterLocale={ru}
               >
                 <Box className="date-time-section">
-                  <DatePicker
-                    label="Дата начала"
-                    value={startDate}
-                    onChange={setStartDate}
-                    dayOfWeekFormatter={(day) => `${day}`}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите дату',
-                        toolbarFormat: 'dd MMMM yyyy',
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок',
-                          todayButtonLabel: 'Сегодня'
+                  <div className="form-group">
+                    <label className="form-label required">Дата начала</label>
+                    <DatePicker
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                      dayOfWeekFormatter={(day) => `${day}`}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.startDate ? 'time-picker-error' : ''
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите дату',
+                          toolbarFormat: 'dd MMMM yyyy',
+                        },
+                        popper: {
+                          localetext: {
+                            cancelButtonLabel: 'Отмена',
+                            clearButtonLabel: 'Очистить',
+                            okButtonLabel: 'Ок',
+                            todayButtonLabel: 'Сегодня'
+                          }
                         }
-                      }
-                    }}
-                  />
-                  <DatePicker
-                    label="Дата окончания"
-                    value={endDate}
-                    onChange={setEndDate}
-                    dayOfWeekFormatter={(day) => `${day}`}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите дату',
-                        toolbarFormat: 'dd MMMM yyyy',
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок',
-                          todayButtonLabel: 'Сегодня'
+                      }}
+                    />
+                    {errors.startDate && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.startDate}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label required">Дата окончания</label>
+                    <DatePicker
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                      dayOfWeekFormatter={(day) => `${day}`}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.endDate ? 'time-picker-error' : ''
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите дату',
+                          toolbarFormat: 'dd MMMM yyyy',
+                        },
+                        popper: {
+                          localetext: {
+                            cancelButtonLabel: 'Отмена',
+                            clearButtonLabel: 'Очистить',
+                            okButtonLabel: 'Ок',
+                            todayButtonLabel: 'Сегодня'
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                    {errors.endDate && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.endDate}</span>
+                      </div>
+                    )}
+                  </div>
                 </Box>
 
                 <Box className="date-time-section">
-                  <TimePicker
-                    label="Время начала"
-                    value={startTime}
-                    onChange={setStartTime}
-                    ampm={false}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите время',
-                        toolbarFormat: 'HH:mm'
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок'
+                  <div className="form-group">
+                    <label className="form-label required">Время начала</label>
+                    <TimePicker
+                      value={startTime}
+                      onChange={handleStartTimeChange}
+                      ampm={false}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.startTime ? 'time-picker-error' : ''
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите время',
+                          toolbarFormat: 'HH:mm'
+                        },
+                        popper: {
+                          localetext: {
+                            cancelButtonLabel: 'Отмена',
+                            clearButtonLabel: 'Очистить',
+                            okButtonLabel: 'Ок'
+                          }
                         }
-                      }
-                    }}
-                  />
-                  <TimePicker
-                    label="Время окончания"
-                    value={endTime}
-                    onChange={setEndTime}
-                    ampm={false}
-                    slotProps={{
-                      textField: {fullWidth: true},
-                      toolbar: {
-                        toolbarTitle: 'Выберите время',
-                        toolbarFormat: 'HH:mm'
-                      },
-                      popper: {
-                        localeText: {
-                          cancelButtonLabel: 'Отмена',
-                          clearButtonLabel: 'Очистить',
-                          okButtonLabel: 'Ок'
+                      }}
+                    />
+                    {errors.startTime && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.startTime}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label required">Время окончания</label>
+                    <TimePicker
+                      value={endTime}
+                      onChange={handleEndTimeChange}
+                      ampm={false}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          className: errors.endTime ? 'time-picker-error' : ''
+                        },
+                        toolbar: {
+                          toolbarTitle: 'Выберите время',
+                          toolbarFormat: 'HH:mm'
+                        },
+                        popper: {
+                          localetext: {
+                            cancelButtonLabel: 'Отмена',
+                            clearButtonLabel: 'Очистить',
+                            okButtonLabel: 'Ок'
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                    {errors.endTime && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.endTime}</span>
+                      </div>
+                    )}
+                  </div>
                 </Box>
               </LocalizationProvider>
 
               {showClassroomSelection &&
                 <>
-                  <TextField
-                    fullWidth
-                    label="Зал"
-                    value={selectedClass ? selectedClass.name : ''}
-                    placeholder="Выберите зал"
-                    onClick={() => handleDialogOpen('room')}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start" sx={{marginRight: '8px'}}>
-                          <MdRoom/>
-                        </InputAdornment>
-                      ),
-                      readOnly: true,
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#1a1a1a'
+                  <div className="form-group">
+                    <label className="form-label required">Зал</label>
+                    <TextField
+                      fullWidth
+                      value={selectedClass ? selectedClass.name : ''}
+                      placeholder="Выберите зал"
+                      onClick={() => handleDialogOpen('room')}
+                      className={`form-control ${errors.selectedClass ? 'error' : ''}`}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start" sx={{marginRight: '8px'}}>
+                            <MdRoom/>
+                          </InputAdornment>
+                        ),
+                        readOnly: true,
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#1a1a1a'
+                          }
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#1a1a1a'
+                        },
+                        '& .MuiInputBase-input::placeholder': {
+                          color: 'rgba(0, 0, 0, 0.6)',
+                          opacity: 1
                         }
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#1a1a1a'
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: 'rgba(0, 0, 0, 0.6)',
-                        opacity: 1
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                    {errors.selectedClass && (
+                      <div className="error-text">
+                        <MdError/>
+                        <span>{errors.selectedClass}</span>
+                      </div>
+                    )}
+                  </div>
                 </>
               }
 
-              <TextField
-                fullWidth
-                label="Ученик"
-                value={
-                  selectedStudent ?
-                    `${selectedStudent.user.last_name} ${selectedStudent.user.first_name} ${selectedStudent.user?.middle_name || ''}`
-                    : ''
-                }
-                placeholder="Выберите ученика"
-                onClick={() => handleDialogOpen('student')}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start" sx={{marginRight: '8px'}}>
-                      <MdPerson/>
-                    </InputAdornment>
-                  ),
-                  readOnly: true,
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#1a1a1a'
-                    }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#1a1a1a'
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(0, 0, 0, 0.6)',
-                    opacity: 1
+              <div className="form-group">
+                <label className="form-label required">Ученик</label>
+                <TextField
+                  fullWidth
+                  value={
+                    selectedStudent ?
+                      `${selectedStudent.user.last_name} ${selectedStudent.user.first_name} ${selectedStudent.user?.middle_name || ''}`
+                      : ''
                   }
-                }}
-              />
+                  placeholder="Выберите ученика"
+                  onClick={() => handleDialogOpen('student')}
+                  className={`form-control ${errors.selectedStudent ? 'error' : ''}`}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{marginRight: '8px'}}>
+                        <MdPerson/>
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#1a1a1a'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#1a1a1a'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(0, 0, 0, 0.6)',
+                      opacity: 1
+                    }
+                  }}
+                />
+                {errors.selectedStudent && (
+                  <div className="error-text">
+                    <MdError/>
+                    <span>{errors.selectedStudent}</span>
+                  </div>
+                )}
+              </div>
 
-              <TextField
-                fullWidth
-                label="Стиль танца"
-                value={selectedLessonType ? selectedLessonType.dance_style.name : ''}
-                placeholder="Выберите стиль танца"
-                onClick={() => handleDialogOpen('lessonType')}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start" sx={{marginRight: '8px'}}>
-                      <MdClass/>
-                    </InputAdornment>
-                  ),
-                  readOnly: true,
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#1a1a1a'
+              <div className="form-group">
+                <label className="form-label required">Стиль танца</label>
+                <TextField
+                  fullWidth
+                  value={selectedLessonType ? selectedLessonType.dance_style.name : ''}
+                  placeholder="Выберите стиль танца"
+                  onClick={() => handleDialogOpen('lessonType')}
+                  className={`form-control ${errors.selectedLessonType ? 'error' : ''}`}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{marginRight: '8px'}}>
+                        <MdClass/>
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#1a1a1a'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#1a1a1a'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(0, 0, 0, 0.6)',
+                      opacity: 1
                     }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#1a1a1a'
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(0, 0, 0, 0.6)',
-                    opacity: 1
-                  }
-                }}
-              />
+                  }}
+                />
+                {errors.selectedLessonType && (
+                  <div className="error-text">
+                    <MdError/>
+                    <span>{errors.selectedLessonType}</span>
+                  </div>
+                )}
+              </div>
 
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Описание"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#1a1a1a'
+              <div className="form-group">
+                <label className="form-label">Описание</label>
+                <TextField
+                  fullWidth
+                  multiline
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#1a1a1a'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#1a1a1a'
                     }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#1a1a1a'
-                  }
-                }}
-              />
+                  }}
+                />
+              </div>
 
               <FormControlLabel
                 control={
                   <Switch
                     checked={allowNeighbors}
-                    onChange={(e) => setAllowNeighbors(e.target.checked)}
+                    onChange={async (e) => {
+                      setAllowNeighbors(e.target.checked);
+                      setSelectedClass(null);
+                    }}
                     sx={{
                       '& .MuiSwitch-switchBase.Mui-checked': {
                         color: '#1a1a1a',

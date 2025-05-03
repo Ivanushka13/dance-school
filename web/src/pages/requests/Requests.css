@@ -1,6 +1,6 @@
 .page-wrapper {
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
 }
 
 .requests-page {
@@ -34,53 +34,50 @@ h1::after {
     border-radius: 2px;
 }
 
-.cards {
+.request-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-}
-
-.card {
-    background: white;
-    border-radius: 24px;
-    padding: 36px 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
 }
 
 .photo {
     display: none;
 }
 
-.name {
+.request-card-name {
+    position: relative;
     font-size: 22px;
     color: #222;
     margin-bottom: 5px;
     font-weight: 600;
     line-height: 1.3;
+    transition: all 0.3s ease;
 }
 
-.middleName {
+.request-card-name::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.request-card:hover .request-card-name {
+    transform: translateY(-2px);
+}
+
+.request-card-middleName {
     font-size: 18px;
     color: #444;
     margin-bottom: 20px;
     font-weight: 400;
 }
 
-.level {
+.request-card-level {
     padding: 8px 24px;
     border-radius: 30px;
     margin-bottom: 24px;
@@ -94,12 +91,12 @@ h1::after {
     background-color: #1a1a1a;
 }
 
-.level:hover {
-    transform: translateY(-2px);
+.request-card-level:hover {
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
 }
 
-.contact {
+.request-card-contact {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -107,25 +104,47 @@ h1::after {
     margin-bottom: 14px;
     color: #666;
     width: 100%;
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
     padding: 10px 16px;
     border-radius: 12px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
 }
 
-.contact:last-child {
+.request-card-contact:last-child {
     margin-bottom: 0;
 }
 
-.contact:hover {
-    background-color: #f0f0f0;
-    transform: translateX(5px);
+.request-card-contact:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    background-color: #f0f2f5;
 }
 
-.contact svg {
-    color: #444;
+.request-card-contact:hover::before {
+    opacity: 1;
+}
+
+.request-card-contact svg {
+    color: #1a1a1a;
+    background-color: rgba(0, 0, 0, 0.05);
+    height: 28px;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 5px;
     font-size: 20px;
     flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.request-card-contact:hover svg {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
 }
 
 .add {
@@ -150,7 +169,6 @@ h1::after {
 }
 
 .add:hover {
-    background-color: #333;
     transform: scale(1.1);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -204,7 +222,7 @@ h1::after {
     margin-bottom: 8px;
 }
 
-.requests-avatar-circle {
+.request-avatar-circle {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -218,31 +236,44 @@ h1::after {
     margin: 8px 0 24px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     border: 4px solid white;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
-.card:hover .avatar-circle {
+.request-card:hover .request-avatar-circle {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
     transform: scale(1.05);
 }
 
-.requests-page .card {
+.requests-page .request-card {
     background: white;
-    border-radius: 24px;
+    border-radius: 18px;
     padding: 36px 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    backface-visibility: hidden;
 }
 
-.requests-page .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+.requests-page .request-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #f5f5f5, #e0e0e0);
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.requests-page .request-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    background-color: #fafafa;
 }

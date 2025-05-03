@@ -12,7 +12,7 @@
     margin: 0 auto;
 }
 
-.calendar-section {
+.slot-selection-calendar-section {
     background: white;
     border-radius: 20px;
     padding: 1.5rem;
@@ -22,7 +22,7 @@
     top: 2rem;
 }
 
-.filter-button {
+.slot-selection-filter-button {
     width: 100%;
     margin-top: 1rem !important;
     height: 48px !important;
@@ -34,37 +34,37 @@
     transition: all 0.2s ease !important;
 }
 
-.filter-button:hover {
+.slot-selection-filter-button:hover {
     background-color: #333 !important;
 }
 
-.slots-content {
+.slot-selection-slots-content {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.slots-header {
+.slot-selection-slots-header {
     background: white;
     border-radius: 20px;
     padding: 1.5rem 2rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.slots-header h1 {
+.slot-selection-slots-header h1 {
     font-size: 1.75rem;
     font-weight: 600;
     color: #1a1a1a;
     margin: 0;
 }
 
-.slots-list {
+.slot-selection-slots-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.slot-card {
+.slot-selection-slot-card {
     background: white;
     border-radius: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -75,18 +75,18 @@
     border-left: 3px solid transparent;
 }
 
-.slot-card:hover {
+.slot-selection-slot-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
-.slot-card.selected {
+.slot-selection-slot-card.selected {
     background-color: white;
     border-left: 3px solid #1a1a1a;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
-.slot-card__title {
+.slot-selection-slot-card__title {
     font-size: 1.3rem;
     font-weight: 600;
     color: #1a1a1a;
@@ -95,14 +95,14 @@
     border-bottom: 1px solid #eee;
 }
 
-.slot-card__info-list {
+.slot-selection-slot-card__info-list {
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
     margin-top: 1.2rem;
 }
 
-.slot-card__info-item {
+.slot-selection-slot-card__info-item {
     display: flex;
     align-items: center;
     gap: 0.9rem;
@@ -113,12 +113,12 @@
     transition: all 0.3s ease;
 }
 
-.slot-card__info-item:hover {
+.slot-selection-slot-card__info-item:hover {
     background-color: #f0f0f0;
     transform: translateY(-4px);
 }
 
-.slot-card__info-icon {
+.slot-selection-slot-card__info-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,12 +131,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.slot-card__info-text {
+.slot-selection-slot-card__info-text {
     font-size: 1rem;
     font-weight: 500;
 }
 
-.submit-request-button {
+.slot-selection-submit-request-button {
     width: 100%;
     height: 52px !important;
     background-color: #1a1a1a !important;
@@ -150,28 +150,28 @@
     letter-spacing: 0.01em !important;
 }
 
-.submit-request-button:hover:not(:disabled) {
+.slot-selection-submit-request-button:hover:not(:disabled) {
     background-color: #333 !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
-.submit-request-button:disabled {
+.slot-selection-submit-request-button:disabled {
     background-color: #e0e0e0 !important;
     color: #999 !important;
 }
 
-.filter-dialog .MuiDialog-paper {
+.slot-selection-filter-dialog .MuiDialog-paper {
     border-radius: 20px;
     padding: 1rem;
     min-width: 400px;
 }
 
-.filter-actions {
+.slot-selection-filter-actions {
     padding: 1.5rem !important;
 }
 
-.apply-filters-button {
+.slot-selection-apply-filters-button {
     width: 100%;
     height: 48px !important;
     background-color: #1a1a1a !important;
@@ -181,7 +181,7 @@
     font-size: 1rem !important;
 }
 
-.no-slots {
+.slot-selection-no-slots {
     background: white;
     border-radius: 20px;
     padding: 3rem 2rem;
@@ -191,25 +191,31 @@
     width: 100%;
 }
 
-.no-slots-icon {
+.slot-selection-no-slots-icon {
     font-size: 3.5rem;
     color: #666;
     margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
 }
 
-.no-slots-title {
+.slot-selection-no-slots-icon:hover {
+    transform: translateY(-4px);
+}
+
+
+.slot-selection-no-slots-title {
     font-size: 1.25rem;
     color: #1a1a1a;
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
 
-.no-slots-text {
+.slot-selection-no-slots-text {
     color: #666;
     font-size: 1rem;
 }
 
-.neighbors-option {
+.slot-selection-neighbors-option {
     background-color: white;
     border-radius: 12px;
     padding: 1rem 1.5rem;
@@ -220,7 +226,7 @@
     justify-content: center;
 }
 
-.neighbors-label {
+.slot-selection-neighbors-label {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -228,19 +234,19 @@
     color: #333;
 }
 
-.neighbors-icon {
+.slot-selection-neighbors-icon {
     font-size: 1.25rem;
     color: #1a1a1a;
 }
 
-.MuiSwitch-root:not(.Mui-checked) + .neighbors-label .neighbors-icon {
+.MuiSwitch-root:not(.Mui-checked) + .slot-selection-neighbors-label .slot-selection-neighbors-icon {
     color: #1a1a1a;
 }
 
-.neighbors-option .MuiSwitch-switchBase.Mui-checked {
+.slot-selection-neighbors-option .MuiSwitch-switchBase.Mui-checked {
     color: #1a1a1a;
 }
 
-.neighbors-option .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+.slot-selection-neighbors-option .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
     background-color: rgba(26, 26, 26, 0.5);
 }

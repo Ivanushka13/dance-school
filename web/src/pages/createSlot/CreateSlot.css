@@ -1,7 +1,7 @@
 .create-slot-wrapper {
     padding: 2rem 0;
     min-height: calc(100vh - 80px);
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
 }
 
 .create-slot-content {
@@ -21,4 +21,134 @@
 .time-section {
     display: flex;
     gap: 1rem;
+}
+
+.form-group {
+    position: relative;
+    width: 100%;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: #dc3545;
+    margin-left: 0.25rem;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error-text svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.form-control.error input,
+.form-control.error .MuiOutlinedInput-notchedOutline,
+.time-picker-error .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline.error {
+    border-color: #dc3545 !important;
+}
+
+.form-control.error:focus input,
+.form-control.error:focus .MuiOutlinedInput-notchedOutline,
+.time-picker-error:focus .MuiOutlinedInput-notchedOutline {
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1) !important;
+}
+
+.create-slot-wrapper .MuiTextField-root {
+    background-color: white;
+}
+
+.create-slot-wrapper .MuiOutlinedInput-root {
+    border-radius: 8px;
+}
+
+.create-slot-wrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #1a1a1a;
+}
+
+.create-slot-wrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #1a1a1a !important;
+    border-width: 2px;
+}
+
+.create-slot-wrapper .MuiInputLabel-root.Mui-focused {
+    color: #1a1a1a !important;
+}
+
+.create-slot-wrapper .MuiButton-root,
+.create-slot-wrapper .MuiTextField-root {
+    transition: transform 0.2s ease-in-out;
+}
+
+.create-slot-wrapper .MuiButton-root:hover,
+.create-slot-wrapper .MuiTextField-root:hover {
+    transform: translateY(-2px);
+}
+
+.submit-button {
+    margin-top: 2rem !important;
+    height: 48px !important;
+    font-size: 1.1rem !important;
+    text-transform: none !important;
+    background-color: #1a1a1a !important;
+    transition: all 0.3s ease !important;
+}
+
+.submit-button:hover {
+    background-color: #2b2a2a !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12) !important;
+}
+
+.create-slot-wrapper .MuiPickersPopper-root .MuiPickersLayout-actionBar button {
+    color: #1a1a1a !important;
+}
+
+.create-slot-wrapper .MuiClock-pin,
+.create-slot-wrapper .MuiClockPointer-root,
+.create-slot-wrapper .MuiClockPointer-thumb {
+    background-color: #1a1a1a !important;
+}
+
+.create-slot-wrapper .MuiClockPointer-thumb {
+    border-color: #1a1a1a !important;
+}
+
+.create-slot-wrapper .MuiPickersToolbar-root h4,
+.create-slot-wrapper .MuiPickersToolbar-root h6 {
+    color: #1a1a1a;
+}
+
+.create-slot-wrapper .MuiPickersToolbar-root,
+.create-slot-wrapper .MuiPickersLayout-root {
+    background-color: white;
+}
+
+.create-slot-wrapper .MuiPickersLayout-actionBar {
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+}
+
+/* Для адаптивного дизайна */
+@media (max-width: 768px) {
+    .time-section {
+        flex-direction: column;
+    }
 }

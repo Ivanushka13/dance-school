@@ -5,6 +5,15 @@ import {DateCalendar} from '@mui/x-date-pickers/DateCalendar';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import ru from 'date-fns/locale/ru';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {MdAccessTime, MdPerson, MdFilterList, MdEventBusy, MdPeople} from 'react-icons/md';
+import {useLocation} from 'react-router-dom';
+import {formatTimeToHM} from "../../util";
+import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
+import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
+import {fetchSlots} from "../../api/slots";
+import {fetchTeachers} from "../../api/teachers";
+import {postLessonRequest} from "../../api/lessons";
 import {
   Dialog,
   DialogTitle,
@@ -18,16 +27,9 @@ import {
   Switch,
   FormControlLabel
 } from "@mui/material";
-import {MdAccessTime, MdPerson, MdFilterList, MdEventBusy, MdPeople} from 'react-icons/md';
-import {useLocation, useNavigate} from 'react-router-dom';
-import {apiRequest} from "../../util/apiService";
-import {formatTimeToHM} from "../../util";
-import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
-import PageLoader from "../../components/PageLoader/PageLoader";
 
 const SlotSelection = () => {
 
-  const navigate = useNavigate();
   const location = useLocation();
   const {selectedLessonType} = location.state || {};
 
@@ -38,8 +40,11 @@ const SlotSelection = () => {
   const [slots, setSlots] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [allowNeighbors, setAllowNeighbors] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalInfo, setConfirmModalInfo] = useState({});
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({});
+
   const [filters, setFilters] = useState({
     teacher: 'all',
     lessonType: selectedLessonType ? selectedLessonType.id : 'all'
@@ -47,59 +52,44 @@ const SlotSelection = () => {
 
   useEffect(() => {
     setSelectedSlot(null);
-    const fetchSlots = async () => {
-      try {
-        const date_from = new Date(selectedDate);
-        const date_to = new Date(selectedDate);
 
-        date_from.setUTCHours(0, 0, 0, 0);
-        date_to.setUTCHours(23, 59, 59, 999);
+    const date_from = new Date(selectedDate);
+    const date_to = new Date(selectedDate);
 
-        const response = await apiRequest({
-          method: 'POST',
-          url: `/slots/search/available`,
-          data: {
-            date_from: date_from.toISOString(),
-            date_to: date_to.toISOString(),
-            lesson_type_ids: [selectedLessonType.id]
-          }
-        });
+    date_from.setUTCHours(0, 0, 0, 0);
+    date_to.setUTCHours(23, 59, 59, 999);
 
-        let count = -1;
-        const slots_updated = response.map((slot) => {
-          ++count;
-          return {...slot, id: count};
-        });
+    fetchSlots(
+      date_from,
+      date_to,
+      [selectedLessonType.id]
+    ).then((slots) => {
+      let count = -1;
+      const slots_updated = slots.map((slot) => {
+        ++count;
+        return {...slot, id: count};
+      });
+      setSlots(slots_updated);
+    }).catch((error) => {
+      setModalInfo({
+        title: 'Ошибка при загрузке слотов',
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+    }).finally(() => setLoading(false));
 
-        setSlots(slots_updated);
-
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    }
-
-    fetchSlots();
-  }, [selectedDate, selectedLessonType])
+  }, [selectedDate, selectedLessonType, loading])
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'GET',
-          url: '/teachers/full-info',
-        });
-
-        setTeachers(response.teachers);
-        setLoading(false);
-
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    }
-
-    fetchTeachers();
+    fetchTeachers({terminated: false}).then((response) => {
+      setTeachers(response.teachers);
+    }).catch((error) => {
+      setModalInfo({
+        title: 'Ошибка при загрузке преподавателей',
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+    }).finally(() => setLoading(false));
   }, [])
 
   const handleFilterChange = (event) => {
@@ -118,8 +108,8 @@ const SlotSelection = () => {
   };
 
   const handleSubmit = () => {
-    setShowModal(true);
-    setModalInfo({
+    setShowConfirmModal(true);
+    setConfirmModalInfo({
       title: 'Подтверждение записи',
       message: 'Вы уверены, что хотите отправить заявку на выбранный слот?',
       confirmText: 'Подтвердить',
@@ -130,6 +120,7 @@ const SlotSelection = () => {
 
   const submitSlot = async () => {
     setLoading(true);
+    setShowConfirmModal(false);
 
     const request = {
       name: "Индивидуальное занятие",
@@ -140,27 +131,23 @@ const SlotSelection = () => {
       are_neighbours_allowed: allowNeighbors
     };
 
-    try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: 'lessons/request',
-        data: request
+    postLessonRequest(request).then((response) => {
+      setModalInfo({
+        title: 'Заявка успешно отправлена',
+        message: ''
       });
-
-      setLoading(false);
-      navigate('/class-register');
-
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
+      setShowInfoModal(true);
+    }).catch((error) => {
+      setModalInfo({
+        title: 'Ошибка при записи в слот',
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+    }).finally(() => setLoading(false));
   };
 
   const filteredSlots = slots.filter(slot => {
-    if (filters.teacher !== 'all' && parseInt(filters.teacher) !== slot.teacher.id) {
-      return false;
-    }
-    return true;
+    return !(filters.teacher !== 'all' && filters.teacher !== slot.teacher.id);
   });
 
   return (
@@ -169,7 +156,7 @@ const SlotSelection = () => {
       <main className="slot-selection-content">
         <PageLoader loading={loading} text="Загрузка слотов...">
           <div className="slot-selection-container">
-            <div className="calendar-section">
+            <div className="slot-selection-calendar-section">
               <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
                 <DateCalendar
                   value={selectedDate}
@@ -210,7 +197,7 @@ const SlotSelection = () => {
               </LocalizationProvider>
               <Button
                 variant="contained"
-                className="filter-button"
+                className="slot-selection-filter-button"
                 onClick={() => setIsFilterDialogOpen(true)}
                 startIcon={<MdFilterList/>}
               >
@@ -218,34 +205,34 @@ const SlotSelection = () => {
               </Button>
             </div>
 
-            <div className="slots-content">
-              <div className="slots-header">
+            <div className="slot-selection-slots-content">
+              <div className="slot-selection-slots-header">
                 <h1>Свободные слоты</h1>
               </div>
 
-              <div className="slots-list">
+              <div className="slot-selection-slots-list">
                 {filteredSlots.length > 0 ? (
                   filteredSlots.map((slot) => (
                     <div
                       key={slot.id}
-                      className={`slot-card ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
+                      className={`slot-selection-slot-card ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
                       onClick={() => handleSlotClick(slot)}
                     >
-                      <h2 className="slot-card__title">Свободный слот</h2>
-                      <div className="slot-card__info-list">
-                        <div className="slot-card__info-item">
-                          <div className="slot-card__info-icon">
+                      <h2 className="slot-selection-slot-card__title">Свободный слот</h2>
+                      <div className="slot-selection-slot-card__info-list">
+                        <div className="slot-selection-slot-card__info-item">
+                          <div className="slot-selection-slot-card__info-icon">
                             <MdAccessTime/>
                           </div>
-                          <span className="slot-card__info-text">
+                          <span className="slot-selection-slot-card__info-text">
                           {formatTimeToHM(slot.start_time)} - {formatTimeToHM(slot.finish_time)}
                         </span>
                         </div>
-                        <div className="slot-card__info-item">
-                          <div className="slot-card__info-icon">
+                        <div className="slot-selection-slot-card__info-item">
+                          <div className="slot-selection-slot-card__info-icon">
                             <MdPerson/>
                           </div>
-                          <span className="slot-card__info-text">
+                          <span className="slot-selection-slot-card__info-text">
                           {`${slot.teacher.user.last_name} ${slot.teacher.user.first_name} ${slot.teacher.user?.middle_name}`}
                         </span>
                         </div>
@@ -253,16 +240,16 @@ const SlotSelection = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="no-slots">
-                    <MdEventBusy className="no-slots-icon"/>
-                    <h2 className="no-slots-title">Нет доступных слотов</h2>
-                    <p className="no-slots-text">Попробуйте выбрать другую дату или другие параметры фильтра</p>
+                  <div className="slot-selection-no-slots">
+                    <MdEventBusy className="slot-selection-no-slots-icon"/>
+                    <h2 className="slot-selection-no-slots-title">Нет доступных слотов</h2>
+                    <p className="slot-selection-no-slots-text">Попробуйте выбрать другую дату или другие параметры фильтра</p>
                   </div>
                 )}
               </div>
 
               {selectedSlot && (
-                <div className="neighbors-option">
+                <div className="slot-selection-neighbors-option">
                   <FormControlLabel
                     control={
                       <Switch
@@ -272,9 +259,9 @@ const SlotSelection = () => {
                       />
                     }
                     label={
-                      <div className="neighbors-label">
+                      <div className="slot-selection-neighbors-label">
                         <span>Разрешить соседей в зале</span>
-                        <MdPeople className="neighbors-icon"/>
+                        <MdPeople className="slot-selection-neighbors-icon"/>
                       </div>
                     }
                   />
@@ -283,7 +270,7 @@ const SlotSelection = () => {
 
               <Button
                 variant="contained"
-                className="submit-request-button"
+                className="slot-selection-submit-request-button"
                 disabled={!selectedSlot}
                 onClick={handleSubmit}
               >
@@ -295,7 +282,7 @@ const SlotSelection = () => {
           <Dialog
             open={isFilterDialogOpen}
             onClose={() => setIsFilterDialogOpen(false)}
-            className="filter-dialog"
+            className="slot-selection-filter-dialog"
           >
             <DialogTitle>Фильтры</DialogTitle>
             <DialogContent>
@@ -316,11 +303,11 @@ const SlotSelection = () => {
                 </Select>
               </FormControl>
             </DialogContent>
-            <DialogActions className="filter-actions">
+            <DialogActions className="slot-selection-filter-actions">
               <Button
                 onClick={() => setIsFilterDialogOpen(false)}
                 variant="contained"
-                className="apply-filters-button"
+                className="slot-selection-apply-filters-button"
               >
                 Применить
               </Button>
@@ -329,13 +316,19 @@ const SlotSelection = () => {
         </PageLoader>
       </main>
       <ConfirmationModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={modalInfo.onConfirm}
+        visible={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalInfo.onConfirm}
+        title={confirmModalInfo.title}
+        message={confirmModalInfo.message}
+        confirmText={confirmModalInfo.confirmText}
+        cancelText={confirmModalInfo.cancelText}
+      />
+      <InformationModal
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
         title={modalInfo.title}
         message={modalInfo.message}
-        confirmText={modalInfo.confirmText}
-        cancelText={modalInfo.cancelText}
       />
     </div>
   );

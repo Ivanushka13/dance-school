@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './InformationModal.css';
+import { useNavigate } from 'react-router-dom';
 
 const InformationModal = ({
   visible = false,
@@ -8,6 +9,8 @@ const InformationModal = ({
   message,
   actionText = 'Oк'
 }) => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (visible) {
       document.body.style.overflow = 'hidden';
@@ -19,6 +22,14 @@ const InformationModal = ({
   }, [visible]);
 
   if (!visible) return null;
+
+  const handleClose = () => {
+    if (message && message === "Ошибка 401: Невалидные учетные данные") {
+      navigate('/login');
+    } else if (onClose) {
+      onClose();
+    }
+  };
 
   return (
     <div className="info-modal-backdrop">
@@ -36,7 +47,7 @@ const InformationModal = ({
         <div className="info-modal-actions">
           <button
             className="info-modal-button"
-            onClick={onClose}
+            onClick={handleClose}
           >
             {actionText}
           </button>

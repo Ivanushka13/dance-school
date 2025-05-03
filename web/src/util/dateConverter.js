@@ -58,3 +58,33 @@ export function formatTimeToHM(dateStr) {
 
   return `${hours}:${minutes}`;
 }
+
+export function formatTime(timeString) {
+  const date = new Date(`1970-01-01T${timeString}`);
+  return date.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
+export function removeTimezone(dateTimeString) {
+  return dateTimeString.replace(/\.\d+|\+\d{2}:\d{2}$/g, '');
+}
+
+// from ISO 8601 ("2025-05-02T13:38:14.632520+03:00") to "02.05.2025"
+export function getDateFromISOstring(isoString) {
+  const date = new Date(isoString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// from ISO 8601 ('2025-05-02T13:38:14.632520+03:00') to '13:38'
+export function getTimeFromISOstring(isoString) {
+  const date = new Date(isoString);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}

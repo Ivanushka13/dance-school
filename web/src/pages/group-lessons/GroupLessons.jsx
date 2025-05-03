@@ -1,6 +1,6 @@
 import "./GroupLessons.css";
 import NavBar from "../../components/navbar/NavBar";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {DateCalendar} from '@mui/x-date-pickers/DateCalendar';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import ru from 'date-fns/locale/ru';
@@ -21,9 +21,13 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {apiRequest} from "../../util/apiService";
 import {LessonListItem} from "../../components/LessonListItem/LessonListItem";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
 
 const GroupLessons = () => {
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
   const {selectedLessonType} = useLocation().state || {};
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [lessons, setLessons] = useState([])
@@ -51,13 +55,14 @@ const GroupLessons = () => {
 
         const response = await apiRequest({
           method: 'POST',
-          url: 'lessons/search/student',
+          url: 'lessons/search/group',
           data: {
             date_from: date_from.toISOString(),
             date_to: date_to.toISOString(),
             is_confirmed: true,
             is_group: true,
-            terminated: false
+            terminated: false,
+            is_participant: false
           }
         });
 
@@ -66,7 +71,11 @@ const GroupLessons = () => {
 
 
       } catch (error) {
-        console.log(error)
+        setModalInfo({
+          title: 'Ошибка при загрузке занятий',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       } finally {
         setLoading(false);
       }
@@ -87,7 +96,11 @@ const GroupLessons = () => {
         setTeachers(response.teachers);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке преподавателей',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       }
     }
 
@@ -110,7 +123,11 @@ const GroupLessons = () => {
         setGroups(response.groups);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке групп',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       }
     }
 
@@ -129,7 +146,11 @@ const GroupLessons = () => {
         setLevels(response.levels);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке уровней',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       }
     }
 
@@ -151,7 +172,11 @@ const GroupLessons = () => {
         setLessonTypes(response.lesson_types);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке типов занятий',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       }
     }
 
@@ -177,173 +202,181 @@ const GroupLessons = () => {
   };
 
   return (
-    <div>
-      <NavBar/>
-      <main className="group-lessons-content">
-        <PageLoader loading={loading} text="Загрузка занятий...">
-          <div className="group-lessons-container">
-            <div className="calendar-section">
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-                <DateCalendar
-                  value={selectedDate}
-                  onChange={setSelectedDate}
-                  sx={{
-                    width: '100%',
-                    '& .MuiPickersCalendarHeader-root': {
-                      fontSize: '1.1rem',
-                      marginTop: '0.5rem',
-                      padding: '0 0.5rem',
-                    },
-                    '& .MuiPickersDay-root': {
-                      width: '40px',
-                      height: '40px',
-                      fontSize: '0.9rem',
-                      margin: '0.25rem',
-                      borderRadius: '12px',
-                      color: '#1a1a1a',
-                    },
-                    '& .MuiDayCalendar-weekDayLabel': {
-                      color: '#1a1a1a',
-                      fontWeight: 500,
-                      fontSize: '0.9rem',
-                      width: '40px',
-                      height: '40px',
-                      margin: '0.25rem',
-                    },
-                    '& .Mui-selected': {
-                      backgroundColor: '#1a1a1a !important',
-                      color: 'white !important',
-                    },
-                    '& .MuiPickersDay-today': {
-                      border: '2px solid #1a1a1a !important',
-                      color: '#1a1a1a',
-                    }
-                  }}
-                />
-              </LocalizationProvider>
-              <Button
-                variant="contained"
-                className="filter-button"
-                onClick={() => setIsFilterDialogOpen(true)}
-                startIcon={<MdFilterList/>}
-              >
-                Фильтры
-              </Button>
-            </div>
-
-            <div className="lessons-content">
-              <div className="lessons-header">
-                <h1 className="lessons-title">Групповые занятия</h1>
+    <>
+      <div>
+        <NavBar/>
+        <main className="group-lessons-content">
+          <PageLoader loading={loading} text="Загрузка занятий...">
+            <div className="group-lessons-container">
+              <div className="calendar-section">
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+                  <DateCalendar
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                    sx={{
+                      width: '100%',
+                      '& .MuiPickersCalendarHeader-root': {
+                        fontSize: '1.1rem',
+                        marginTop: '0.5rem',
+                        padding: '0 0.5rem',
+                      },
+                      '& .MuiPickersDay-root': {
+                        width: '40px',
+                        height: '40px',
+                        fontSize: '0.9rem',
+                        margin: '0.25rem',
+                        borderRadius: '12px',
+                        color: '#1a1a1a',
+                      },
+                      '& .MuiDayCalendar-weekDayLabel': {
+                        color: '#1a1a1a',
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
+                        width: '40px',
+                        height: '40px',
+                        margin: '0.25rem',
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: '#1a1a1a !important',
+                        color: 'white !important',
+                      },
+                      '& .MuiPickersDay-today': {
+                        border: '2px solid #1a1a1a !important',
+                        color: '#1a1a1a',
+                      }
+                    }}
+                  />
+                </LocalizationProvider>
+                <Button
+                  variant="contained"
+                  className="filter-button"
+                  onClick={() => setIsFilterDialogOpen(true)}
+                  startIcon={<MdFilterList/>}
+                >
+                  Фильтры
+                </Button>
               </div>
 
-              {filteredLessons.length === 0 ? (
-                <div className="no-lessons">
-                  <MdEvent className="no-lessons-icon"/>
-                  <h2 className="no-lessons-title">В этот день нет занятий</h2>
-                  <p className="no-lessons-text">Выберите другую дату в календаре</p>
+              <div className="lessons-content">
+                <div className="lessons-header">
+                  <h1 className="lessons-title">Групповые занятия</h1>
                 </div>
-              ) : (
-                <div className="lessons-list">
-                  {filteredLessons.map((lesson) => (
-                    <LessonListItem
-                      key={lesson.id}
-                      lesson={lesson}
-                      onClick={handleLessonClick}
-                    />
-                  ))}
-                </div>
-              )}
+
+                {filteredLessons.length === 0 ? (
+                  <div className="no-lessons">
+                    <MdEvent className="no-lessons-icon"/>
+                    <h2 className="no-lessons-title">В этот день нет занятий</h2>
+                    <p className="no-lessons-text">Выберите другую дату в календаре</p>
+                  </div>
+                ) : (
+                  <div className="lessons-list">
+                    {filteredLessons.map((lesson) => (
+                      <LessonListItem
+                        key={lesson.id}
+                        lesson={lesson}
+                        onClick={handleLessonClick}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </PageLoader>
+          </PageLoader>
 
-        <Dialog
-          open={isFilterDialogOpen}
-          onClose={() => setIsFilterDialogOpen(false)}
-          className="filter-dialog"
-        >
-          <DialogTitle>Фильтры</DialogTitle>
-          <DialogContent>
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Преподаватель</InputLabel>
-              <Select
-                name="teacher"
-                value={filters.teacher}
-                onChange={handleFilterChange}
-                label="Преподаватель"
-              >
-                <MenuItem value="all">Все преподаватели</MenuItem>
-                {teachers.map(teacher => (
-                  <MenuItem key={teacher.id} value={teacher.id}>
-                    {`${teacher.user.last_name} ${teacher.user.first_name} ${teacher.user?.middle_name}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Dialog
+            open={isFilterDialogOpen}
+            onClose={() => setIsFilterDialogOpen(false)}
+            className="filter-dialog"
+          >
+            <DialogTitle>Фильтры</DialogTitle>
+            <DialogContent>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Преподаватель</InputLabel>
+                <Select
+                  name="teacher"
+                  value={filters.teacher}
+                  onChange={handleFilterChange}
+                  label="Преподаватель"
+                >
+                  <MenuItem value="all">Все преподаватели</MenuItem>
+                  {teachers.map(teacher => (
+                    <MenuItem key={teacher.id} value={teacher.id}>
+                      {`${teacher.user.last_name} ${teacher.user.first_name} ${teacher.user?.middle_name}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Группа</InputLabel>
-              <Select
-                name="group"
-                value={filters.group}
-                onChange={handleFilterChange}
-                label="Группа"
-              >
-                <MenuItem value="all">Все группы</MenuItem>
-                {groups.map(group => (
-                  <MenuItem key={group.id} value={group.id}>
-                    {group.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Группа</InputLabel>
+                <Select
+                  name="group"
+                  value={filters.group}
+                  onChange={handleFilterChange}
+                  label="Группа"
+                >
+                  <MenuItem value="all">Все группы</MenuItem>
+                  {groups.map(group => (
+                    <MenuItem key={group.id} value={group.id}>
+                      {group.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Уровень</InputLabel>
-              <Select
-                name="level"
-                value={filters.level}
-                onChange={handleFilterChange}
-                label="Уровень"
-              >
-                <MenuItem value="all">Все уровни</MenuItem>
-                {levels.map(level => (
-                  <MenuItem key={level.id} value={level.id}>
-                    {level.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Уровень</InputLabel>
+                <Select
+                  name="level"
+                  value={filters.level}
+                  onChange={handleFilterChange}
+                  label="Уровень"
+                >
+                  <MenuItem value="all">Все уровни</MenuItem>
+                  {levels.map(level => (
+                    <MenuItem key={level.id} value={level.id}>
+                      {level.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Стиль танца</InputLabel>
-              <Select
-                name="lessonType"
-                value={filters.lessonType}
-                onChange={handleFilterChange}
-                label="Стиль танца"
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Стиль танца</InputLabel>
+                <Select
+                  name="lessonType"
+                  value={filters.lessonType}
+                  onChange={handleFilterChange}
+                  label="Стиль танца"
+                >
+                  <MenuItem value="all">Все стили танца</MenuItem>
+                  {lessonTypes.map(type => (
+                    <MenuItem key={type.id} value={type.id}>
+                      {type.dance_style.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </DialogContent>
+            <DialogActions className="filter-actions">
+              <Button
+                onClick={() => setIsFilterDialogOpen(false)}
+                variant="contained"
+                className="apply-filters-button"
               >
-                <MenuItem value="all">Все стили танца</MenuItem>
-                {lessonTypes.map(type => (
-                  <MenuItem key={type.id} value={type.id}>
-                    {type.dance_style.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </DialogContent>
-          <DialogActions className="filter-actions">
-            <Button
-              onClick={() => setIsFilterDialogOpen(false)}
-              variant="contained"
-              className="apply-filters-button"
-            >
-              Применить
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </main>
-    </div>
+                Применить
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </main>
+      </div>
+      <InformationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
+    </>
   );
 };
 

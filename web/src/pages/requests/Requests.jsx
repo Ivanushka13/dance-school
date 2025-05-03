@@ -57,10 +57,7 @@ const Requests = () => {
   const [requests, setRequests] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [modalInfo, setModalInfo] = useState({
-    title: '',
-    message: ''
-  });
+  const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -120,30 +117,30 @@ const Requests = () => {
             <div className="content">
               <h1>Заявки на преподавание</h1>
               {requests && requests.length > 0 ? (
-                <div className="cards">
+                <div className="request-cards">
                   {requests.map(request => (
                     <div
-                      key={request.actual_students[0].id}
-                      className="card"
+                      key={request.id}
+                      className="request-card"
                       onClick={() => handleRequestClick(request.id)}
                     >
-                      <div className="requests-avatar-circle">
+                      <div className="request-avatar-circle">
                         {getInitials(
                           request.actual_students[0].user.first_name,
                           request.actual_students[0].user.last_name
                         )}
                       </div>
-                      <div className="name">
+                      <div className="request-card-name">
                         {request.actual_students[0].user.last_name} {request.actual_students[0].user.first_name}
-                        <div className="middleName">{request.actual_students[0].user.middle_name}</div>
+                        <div className="request-card-middleName">{request.actual_students[0].user.middle_name}</div>
                       </div>
                       <div
-                        className={`level ${request.actual_students[0].level.id}`}>{request.actual_students[0].level.name}</div>
-                      <div className="contact">
+                        className={`request-card-level ${request.actual_students[0].level.id}`}>{request.actual_students[0].level.name}</div>
+                      <div className="request-card-contact">
                         <MdEmail/>
                         {request.actual_students[0].user.email}
                       </div>
-                      <div className="contact">
+                      <div className="request-card-contact">
                         <MdPhone/>
                         {request.actual_students[0].user.phone_number}
                       </div>
@@ -226,7 +223,12 @@ const Requests = () => {
       </div>
       <InformationModal
         visible={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => {
+          setShowModal(false);
+          if (modalInfo.onClose) {
+            modalInfo.onClose();
+          }
+        }}
         title={modalInfo.title}
         message={modalInfo.message}
       />

@@ -8,25 +8,22 @@ import {setUser} from "../../redux/slices/userSlice";
 import {setLevel} from "../../redux/slices/levelSlice";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import {MdError} from 'react-icons/md';
 
 const EditProfile = () => {
 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
   const session = useSelector((state) => state.session);
   const level = useSelector((state) => state.level);
-  const [showModal, setShowModal] = useState(false);
+
   const [loading, setLoading] = useState(true);
-  const [modalInfo, setModalInfo] = useState({
-    title: '',
-    message: ''
-  });
-
-  const navigate = useNavigate();
-
   const [levels, setLevels] = useState([]);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
 
   const [formData, setFormData] = useState({
     first_name: user.first_name,
@@ -64,12 +61,12 @@ const EditProfile = () => {
         setLoading(false);
 
       } catch (error) {
-        setLoading(false);
         setModalInfo({
           title: 'Ошибка при загрузке уровней',
           message: error.message || String(error),
         });
         setShowModal(true);
+        setLoading(false);
       }
     }
 
@@ -77,10 +74,18 @@ const EditProfile = () => {
   }, []);
 
   const handleChange = (e) => {
+    const {name, value} = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleMainInfoSubmit = async (e) => {
@@ -114,26 +119,82 @@ const EditProfile = () => {
       navigate('/profile');
 
     } catch (error) {
-      setLoading(false);
       setModalInfo({
         title: 'Ошибка во время сохранения данных',
         message: error.message || String(error),
       });
       setShowModal(true);
+      setLoading(false);
     }
+  };
+
+  const validatePasswordForm = () => {
+    const newErrors = {};
+
+    if (!formData.oldPassword) {
+      newErrors.oldPassword = 'Введите текущий пароль';
+    } else if (formData.oldPassword.length < 8) {
+      newErrors.oldPassword = 'Пароль должен быть не менее 8 символов';
+    }
+
+    if (!formData.newPassword) {
+      newErrors.newPassword = 'Введите новый пароль';
+    } else if (formData.newPassword.length < 8) {
+      newErrors.newPassword = 'Пароль должен быть не менее 8 символов';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Подтвердите пароль';
+    } else if (formData.newPassword !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Пароли не совпадают';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.newPassword || !formData.confirmPassword) {
-      setError('Пожалуйста, заполните оба поля пароля');
+
+    if (!validatePasswordForm()) {
       return;
     }
-    if (formData.newPassword !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
 
+    setLoading(true);
+
+    try {
+      const response = await apiRequest({
+        method: 'patch',
+        url: session.role === 'student' ? `/students/${session.id}` : `/teachers/${session.id}`,
+        data: {
+          old_password: formData.oldPassword,
+          new_password: formData.newPassword
+        }
+      });
+
+      setFormData({
+        ...formData,
+        newPassword: '',
+        confirmPassword: '',
+        oldPassword: ''
+      });
+
+      setModalInfo({
+        title: 'Пароль был успешно изменен',
+        message: '',
+      });
+      setShowModal(true);
+
+      setLoading(false);
+
+    } catch (error) {
+      setLoading(false);
+      setModalInfo({
+        title: 'Ошибка при изменении пароля',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
     }
-    // todo password update
   };
 
   const handleCancel = () => {
@@ -144,155 +205,176 @@ const EditProfile = () => {
     <>
       <div className="page-wrapper">
         <NavBar/>
-        <div className="edit-profile-container">
+        <div className="page-content">
           <PageLoader loading={loading} text="Загрузка данных...">
-            <form className="edit-profile-form">
-              <div className="form-header">
-                <h2>Редактирование профиля</h2>
-              </div>
-
-              <div className="form-section">
-                <h3 className="form-section-title">Личные данные</h3>
-                <div className="form-group">
-                  <label htmlFor="lastName">Фамилия</label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                  />
+            <div className="edit-profile-container">
+              <form className="edit-profile-form">
+                <div className="form-header">
+                  <h2>Редактирование профиля</h2>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="firstName">Имя</label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="middleName">Отчество</label>
-                  <input
-                    type="text"
-                    id="middleName"
-                    name="middleName"
-                    value={formData.middle_name}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
 
-              <div className="form-section">
-                <h3 className="form-section-title">Контактная информация</h3>
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="phone">Телефон</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone_number}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="form-section">
-                <h3 className="form-section-title">Дополнительная информация</h3>
-                {session.role === 'student' && (
-                  <div className="form-group">
-                    <label htmlFor="level">Уровень подготовки</label>
-                    <select
-                      id="level"
-                      name="level"
-                      value={formData.level}
-                      onChange={handleChange}
-                      className="select-input"
-                    >
-                      {levels.map((item) => (
-                        <option key={item.id} value={item.id}>{item.name}</option>
-                      ))}
-
-                    </select>
-                  </div>
-                )}
-                <div className="form-group">
-                  <label htmlFor="description">О себе</label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Расскажите о своем опыте, интересах и целях"
-                  />
-                </div>
-              </div>
-
-              <div className="buttons-container main-info-buttons">
-                <button type="button" className="cancel-button" onClick={handleCancel}>
-                  Отмена
-                </button>
-                <button type="button" className="save-button" onClick={handleMainInfoSubmit}>
-                  Сохранить основную информацию
-                </button>
-              </div>
-
-              <div className="password-section">
-                <h3 className="password-section-title">Изменение пароля</h3>
                 <div className="form-section">
+                  <h3 className="form-section-title">Личные данные</h3>
                   <div className="form-group">
-                    <label htmlFor="oldPassword">Текущий пароль</label>
+                    <label htmlFor="lastName">Фамилия</label>
                     <input
-                      type="password"
-                      id="oldPassword"
-                      name="oldPassword"
-                      value={formData.oldPassword}
+                      type="text"
+                      id="lastName"
+                      name="last_name"
+                      value={formData.last_name}
                       onChange={handleChange}
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="newPassword">Новый пароль</label>
+                    <label htmlFor="firstName">Имя</label>
                     <input
-                      type="password"
-                      id="newPassword"
-                      name="newPassword"
-                      value={formData.newPassword}
+                      type="text"
+                      id="firstName"
+                      name="first_name"
+                      value={formData.first_name}
                       onChange={handleChange}
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="confirmPassword">Подтверждение пароля</label>
+                    <label htmlFor="middleName">Отчество</label>
                     <input
-                      type="password"
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
+                      type="text"
+                      id="middleName"
+                      name="middle_name"
+                      value={formData.middle_name}
                       onChange={handleChange}
                     />
                   </div>
                 </div>
-              </div>
 
-              {error && <div className="error-message">{error}</div>}
+                <div className="form-section">
+                  <h3 className="form-section-title">Контактная информация</h3>
+                  <div className="form-group">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone">Телефон</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone_number"
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
 
-              <div className="buttons-container">
-                <button type="button" className="save-button" onClick={handlePasswordSubmit}>
-                  Изменить пароль
-                </button>
-              </div>
-            </form>
+                <div className="form-section">
+                  <h3 className="form-section-title">Дополнительная информация</h3>
+                  {session.role === 'student' && (
+                    <div className="form-group">
+                      <label htmlFor="level">Уровень подготовки</label>
+                      <select
+                        id="level"
+                        name="level"
+                        value={formData.level}
+                        onChange={handleChange}
+                        className="select-input"
+                      >
+                        {levels.map((item) => (
+                          <option key={item.id} value={item.id}>{item.name}</option>
+                        ))}
+
+                      </select>
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label htmlFor="description">О себе</label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      value={formData.description || ''}
+                      onChange={handleChange}
+                      placeholder="Расскажите о своем опыте, интересах и целях"
+                    />
+                  </div>
+                </div>
+
+                <div className="buttons-container main-info-buttons">
+                  <button type="button" className="cancel-button" onClick={handleCancel}>
+                    Отмена
+                  </button>
+                  <button type="button" className="save-button" onClick={handleMainInfoSubmit}>
+                    Сохранить основную информацию
+                  </button>
+                </div>
+
+                <div className="password-section">
+                  <h3 className="password-section-title">Изменение пароля</h3>
+                  <div className="form-section">
+                    <div className="form-group">
+                      <label htmlFor="oldPassword">Текущий пароль</label>
+                      <input
+                        type="password"
+                        id="oldPassword"
+                        name="oldPassword"
+                        className={`${errors.oldPassword ? 'error' : ''}`}
+                        value={formData.oldPassword}
+                        onChange={handleChange}
+                      />
+                      {errors.oldPassword && (
+                        <div className="field-error">
+                          <MdError/>
+                          <span>{errors.oldPassword}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="newPassword">Новый пароль</label>
+                      <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        className={`${errors.newPassword ? 'error' : ''}`}
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                      />
+                      {errors.newPassword && (
+                        <div className="field-error">
+                          <MdError/>
+                          <span>{errors.newPassword}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword">Подтверждение пароля</label>
+                      <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        className={`${errors.confirmPassword ? 'error' : ''}`}
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                      />
+                      {errors.confirmPassword && (
+                        <div className="field-error">
+                          <MdError/>
+                          <span>{errors.confirmPassword}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="buttons-container">
+                  <button type="button" className="save-button" onClick={handlePasswordSubmit}>
+                    Изменить пароль
+                  </button>
+                </div>
+              </form>
+            </div>
           </PageLoader>
         </div>
       </div>

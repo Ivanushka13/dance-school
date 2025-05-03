@@ -3,7 +3,7 @@ import localforage from "localforage";
 const loadFromStorage = async (key) => {
     try {
         const data = await localforage.getItem(key);
-        console.log(`loading ${key} from storage: ${JSON.stringify(data)}`);
+        console.log(`loading ${key} from storage...`);
         return data ? JSON.parse(data) : null;
     } catch (error) {
         console.error(`Error loading ${key} from LocalStorage:`, error);

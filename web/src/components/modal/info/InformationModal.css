@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease-out;
+  animation: backdropFadeIn 0.25s ease;
   backdrop-filter: blur(2px);
 }
 
@@ -21,7 +21,7 @@
   max-width: 90%;
   padding: 0;
   overflow: hidden;
-  animation: slideUp 0.3s ease-out, fadeIn 0.3s ease-out;
+  animation: scaleIn 0.3s ease-out;
   transform-origin: center;
   max-height: 90vh;
   display: flex;
@@ -128,11 +128,24 @@
   }
 }
 
-@keyframes slideUp {
+@keyframes scaleIn {
   from {
-    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+    transform: scale(0.8);
   }
   to {
-    transform: translateY(0) scale(1);
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
   }
 }

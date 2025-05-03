@@ -12,6 +12,7 @@ import {apiRequest} from "../../util/apiService";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
 
 const SchedulePage = () => {
 
@@ -22,6 +23,11 @@ const SchedulePage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({
+    title: '',
+    message: ''
+  });
 
   useEffect(() => {
     const fetchLessons = async () => {
@@ -47,7 +53,11 @@ const SchedulePage = () => {
         setLoading(false);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке занятий',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
       } finally {
         setLoading(false);
       }
@@ -61,87 +71,95 @@ const SchedulePage = () => {
   }
 
   return (
-    <div>
-      <NavBar/>
-      <main className="schedule-content">
-        <PageLoader loading={loading} text="Загрузка занятий...">
-          <div className="schedule-container">
-            <div className="calendar-wrapper">
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-                <DateCalendar
-                  className="custom-calendar"
-                  value={selectedDate}
-                  onChange={setSelectedDate}
-                  sx={{
-                    width: '100%',
-                    '& .MuiPickersCalendarHeader-root': {
-                      fontSize: '1.1rem',
-                      marginTop: '0.3rem',
-                      padding: '0 0.5rem',
-                    },
-                    '& .MuiPickersDay-root': {
-                      width: '40px',
-                      height: '40px',
-                      fontSize: '0.9rem',
-                      margin: '0.25rem',
-                      borderRadius: '12px',
-                      color: '#1a1a1a',
-                    },
-                    '& .MuiDayCalendar-weekDayLabel': {
-                      color: '#1a1a1a',
-                      fontWeight: 500,
-                      fontSize: '0.9rem',
-                      width: '40px',
-                      height: '40px',
-                      margin: '0.25rem',
-                    },
-                    '& .MuiDayCalendar-weekContainer': {
-                      justifyContent: 'space-around',
-                    },
-                    '& .Mui-selected': {
-                      backgroundColor: '#1a1a1a !important',
-                      color: 'white !important',
-                    },
-                    '& .MuiPickersDay-today': {
-                      border: '2px solid #1a1a1a !important',
-                      color: '#1a1a1a',
-                    },
-                    '& .MuiPickersDay-root:hover': {
-                      backgroundColor: 'rgba(26, 26, 26, 0.1)',
-                    },
-                  }}
-                />
-              </LocalizationProvider>
-            </div>
-
-            <div className="lessons-wrapper">
-              <div className="lessons-header">
-                <h1 className="lessons-title">
-                  Расписание
-                </h1>
+    <>
+      <div>
+        <NavBar/>
+        <main className="schedule-content">
+          <PageLoader loading={loading} text="Загрузка занятий...">
+            <div className="schedule-container">
+              <div className="calendar-wrapper">
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+                  <DateCalendar
+                    className="custom-calendar"
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                    sx={{
+                      width: '100%',
+                      '& .MuiPickersCalendarHeader-root': {
+                        fontSize: '1.1rem',
+                        marginTop: '0.3rem',
+                        padding: '0 0.5rem',
+                      },
+                      '& .MuiPickersDay-root': {
+                        width: '40px',
+                        height: '40px',
+                        fontSize: '0.9rem',
+                        margin: '0.25rem',
+                        borderRadius: '12px',
+                        color: '#1a1a1a',
+                      },
+                      '& .MuiDayCalendar-weekDayLabel': {
+                        color: '#1a1a1a',
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
+                        width: '40px',
+                        height: '40px',
+                        margin: '0.25rem',
+                      },
+                      '& .MuiDayCalendar-weekContainer': {
+                        justifyContent: 'space-around',
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: '#1a1a1a !important',
+                        color: 'white !important',
+                      },
+                      '& .MuiPickersDay-today': {
+                        border: '2px solid #1a1a1a !important',
+                        color: '#1a1a1a',
+                      },
+                      '& .MuiPickersDay-root:hover': {
+                        backgroundColor: 'rgba(26, 26, 26, 0.1)',
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
               </div>
-              {!loading && lessons.length === 0 ? (
-                <div className="no-lessons">
-                  <MdEvent className="no-lessons-icon"/>
-                  <h2 className="no-lessons-title">В этот день нет занятий</h2>
-                  <p className="no-lessons-text">Выберите другую дату в календаре</p>
+
+              <div className="lessons-wrapper">
+                <div className="lessons-header">
+                  <h1 className="lessons-title">
+                    Расписание
+                  </h1>
                 </div>
-              ) : (
-                <div className="lessons-list">
-                  {lessons.map((lesson, index) => (
-                    <LessonListItem
-                      key={index}
-                      lesson={lesson}
-                      onClick={() => handleLessonNavigate(lesson.id)}
-                    />
-                  ))}
-                </div>
-              )}
+                {!loading && lessons.length === 0 ? (
+                  <div className="no-lessons">
+                    <MdEvent className="no-lessons-icon"/>
+                    <h2 className="no-lessons-title">В этот день нет занятий</h2>
+                    <p className="no-lessons-text">Выберите другую дату в календаре</p>
+                  </div>
+                ) : (
+                  <div className="lessons-list">
+                    {lessons.map((lesson, index) => (
+                      <LessonListItem
+                        key={index}
+                        lesson={lesson}
+                        onClick={() => handleLessonNavigate(lesson.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </PageLoader>
-      </main>
-    </div>
+          </PageLoader>
+        </main>
+      </div>
+      <InformationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
+    </>
   )
 }
 

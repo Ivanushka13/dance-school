@@ -1,25 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
-import {format, parseISO} from 'date-fns';
-import {ru} from 'date-fns/locale';
+import {useNavigate, useParams} from 'react-router-dom';
 import NavBar from "../../components/navbar/NavBar";
 import './Lesson.css';
 import {useSelector} from "react-redux";
 import {apiRequest} from "../../util/apiService";
-import {formatDateToDMY, formatTimeToHM} from "../../util";
+import {
+  getDateFromISOstring,
+  getTimeFromISOstring,
+} from "../../util";
 import {
   MdGroup,
   MdPeopleOutline,
-  MdOutlineDescription,
-  MdEvent,
   MdPayment,
   MdCancel,
   MdCheckCircle,
-  MdArrowBack
+  MdArrowBack,
+  MdCreditCard,
+  MdClose, MdCheck
 } from 'react-icons/md';
 import {Button} from "@mui/material";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
 
 export const Lesson = () => {
 
@@ -33,11 +35,15 @@ export const Lesson = () => {
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [isParticipating, setIsParticipating] = useState(false);
-  const [hasValidSubscription, setHasValidSubscription] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalInfo, setModalInfo] = useState({});
+  const [isInGroup, setIsInGroup] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [finishTime, setFinishTime] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalInfo, setConfirmModalInfo] = useState({});
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
+  const [showSubscriptionsModal, setShowSubscriptionsModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -48,29 +54,15 @@ export const Lesson = () => {
           url: `/lessons/full-info/${lesson_id}`
         });
 
-        setLesson(lesson_response);
-        setStudents(lesson_response.actual_students);
-        setTeachers(lesson_response.actual_teachers);
-
-        setStartTime(lesson_response.start_time);
-        setFinishTime(lesson_response.finish_time);
-
-        if (role === 'student' && lesson_response.actual_students) {
-          const isCurrentStudentParticipating = lesson_response.actual_students.some(
-            student => student.id === session.id
-          );
-          setIsParticipating(isCurrentStudentParticipating);
-        }
-
-        if (role === 'student' && session.subscriptions && lesson_response.subscription_templates) {
-          const hasSubscription = checkSubscriptions(lesson_response.subscription_templates);
-          setHasValidSubscription(hasSubscription);
-        }
-
-        setLoading(false);
+        await setLessonInfo(lesson_response);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке данных занятия',
+          message: error.message || String(error),
+        });
+        setShowInfoModal(true);
+      } finally {
         setLoading(false);
       }
     }
@@ -78,48 +70,75 @@ export const Lesson = () => {
     fetchLesson();
   }, [lesson_id, role, session.id, session.subscriptions]);
 
+  const setLessonInfo = (lesson) => {
+
+    setLesson(lesson);
+    setStudents(lesson.actual_students);
+    setTeachers(lesson.actual_teachers);
+
+    setStartTime(lesson.start_time);
+    setFinishTime(lesson.finish_time);
+
+    if (role === 'student') {
+      setIsParticipating(lesson.actual_students
+        .some(student => student.id === session.id));
+
+      setIsInGroup(lesson.group.students
+        .some(student => student.id === session.id));
+    }
+  }
+
   const handleNavigate = () => {
     navigate(`/group/${lesson.group_id}`);
   }
 
-  const checkSubscriptions = (templates) => {
-    if (!session.subscriptions || !templates) return false;
 
-    for (const subscription of session.subscriptions) {
-      const templateId = subscription.subscription_template.id;
-      if (templates.some(t => t.id === templateId)) {
-        return true;
-      }
+  const handleFittingSubSelections = () => {
+    if (lesson.fitting_subscriptions && lesson.fitting_subscriptions.length > 0) {
+      setShowSubscriptionsModal(true);
     }
-    return false;
   }
 
-  const handleJoinLesson = () => {
-    setShowModal(true);
-    setModalInfo({
-      title: 'Подтверждение участия',
-      message: 'Вы уверены, что хотите записаться на занятие?',
-      confirmText: 'Подтвердить',
-      cancelText: 'Отменить',
-      onConfirm: () => joinLesson()
-    });
+  const handleSubscriptionConfirm = () => {
+    if (selectedSubscription) {
+      setShowSubscriptionsModal(false);
+      setShowConfirmModal(true);
+      setConfirmModalInfo({
+        title: 'Подтверждение записи на занятие',
+        message: `Вы уверены, что хотите записаться на занятие?`,
+        confirmText: 'Подтвердить',
+        cancelText: 'Отменить',
+        onConfirm: () => joinLesson()
+      });
+    }
   }
 
   const joinLesson = async () => {
     try {
       setLoading(true);
-      setShowModal(false);
-      setIsParticipating(true);
-      setLoading(false);
+      setShowConfirmModal(false);
+
+      const response = await apiRequest({
+        method: 'POST',
+        url: `/subscriptions/lessons/${selectedSubscription.id}/${lesson.id}`
+      });
+
+      await setLessonInfo(response);
+
     } catch (error) {
-      console.error("Ошибка при записи на занятие:", error);
+      setModalInfo({
+        title: 'Ошибка при записи на занятие',
+        message: error.message || String(error),
+      });
+      setShowInfoModal(true);
+    } finally {
       setLoading(false);
     }
   }
 
   const handleCancelLesson = () => {
-    setShowModal(true);
-    setModalInfo({
+    setShowConfirmModal(true);
+    setConfirmModalInfo({
       title: 'Подтверждение отмены занятия',
       message: 'Вы уверены, что хотите отменить запись на занятие?',
       confirmText: 'Подтвердить',
@@ -131,17 +150,31 @@ export const Lesson = () => {
   const cancelLesson = async () => {
     try {
       setLoading(true);
-      setShowModal(false);
-      setIsParticipating(false);
-      setLoading(false);
+      setShowConfirmModal(false);
+
+      if(!selectedSubscription) {
+        setSelectedSubscription(lesson.used_subscription);
+      }
+
+      const response = await apiRequest({
+        method: 'PATCH',
+        url: `/subscriptions/lessons/cancel/${selectedSubscription.id}/${lesson.id}`
+      });
+
+      console.log("DELETE:")
+      console.log(response);
+
+      await setLessonInfo(response);
+
     } catch (error) {
-      console.error("Ошибка при отмене занятия:", error);
+      setModalInfo({
+        title: 'Ошибка при отмене занятия',
+        message: error.message || String(error),
+      });
+      setShowInfoModal(true);
+    } finally {
       setLoading(false);
     }
-  }
-
-  const handleBuySubscription = () => {
-    navigate('/subscriptions');
   }
 
   return (
@@ -187,13 +220,13 @@ export const Lesson = () => {
                 <div className="group-lesson-info-row">
                   <span className="group-lesson-info-label">Дата</span>
                   <span className="group-lesson-info-value">
-                  {formatDateToDMY(startTime)}
+                  {getDateFromISOstring(startTime)}
                 </span>
                 </div>
                 <div className="group-lesson-info-row">
                   <span className="group-lesson-info-label">Время</span>
                   <span className="group-lesson-info-value">
-                  {formatTimeToHM(startTime)} - {formatTimeToHM(finishTime)}
+                  {getTimeFromISOstring(startTime)} - {getTimeFromISOstring(finishTime)}
                 </span>
                 </div>
                 <div className="group-lesson-info-row">
@@ -230,7 +263,7 @@ export const Lesson = () => {
                     <h2>Информация о группе</h2>
                     <div className="lesson-group-count">
                       <MdPeopleOutline/>
-                      <span>{students.length}</span>
+                      <span>{lesson?.group?.students.length}</span>
                       <span>/</span>
                       <span>{lesson.group?.max_capacity || '-'}</span>
                     </div>
@@ -257,7 +290,7 @@ export const Lesson = () => {
                 <h2>Преподаватели</h2>
               </div>
               <div className="lesson-teachers-list">
-                {teachers.map((teacher) => (
+                {teachers?.map((teacher) => (
                   <div key={teacher.id} className="lesson-teacher-item">
                     {teacher?.photo ? (
                       <img src={teacher.photo} alt={teacher.user.first_name}/>
@@ -282,18 +315,7 @@ export const Lesson = () => {
 
             {role === 'student' && (
               <div className="lesson-action-buttons">
-                {!hasValidSubscription ? (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className="buy-subscription-button"
-                    onClick={handleBuySubscription}
-                    startIcon={<MdPayment/>}
-                    style={{backgroundColor: '#1a1a1a', color: 'white'}}
-                  >
-                    Приобрести абонемент
-                  </Button>
-                ) : isParticipating ? (
+                {isParticipating ? (
                   <Button
                     variant="outlined"
                     color="error"
@@ -303,16 +325,38 @@ export const Lesson = () => {
                   >
                     Отменить занятие
                   </Button>
-                ) : (
+                ) : isInGroup ? (
                   <Button
                     variant="contained"
                     color="primary"
                     className="join-lesson-button"
-                    onClick={handleJoinLesson}
+                    onClick={handleFittingSubSelections}
                     startIcon={<MdCheckCircle/>}
                     style={{backgroundColor: '#1a1a1a', color: 'white'}}
                   >
                     Буду участвовать
+                  </Button>
+                ) : lesson.fitting_subscriptions && lesson.fitting_subscriptions.length > 0 ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className="buy-subscription-button"
+                    onClick={() => navigate(`/group/${lesson.group.id}`)}
+                    startIcon={<MdGroup/>}
+                    style={{backgroundColor: '#1a1a1a', color: 'white'}}
+                  >
+                    Перейти на страницу группы
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className="buy-subscription-button"
+                    onClick={() => navigate('/subscriptions')}
+                    startIcon={<MdPayment/>}
+                    style={{backgroundColor: '#1a1a1a', color: 'white'}}
+                  >
+                    Приобрести абонемент
                   </Button>
                 )}
               </div>
@@ -320,14 +364,83 @@ export const Lesson = () => {
           </div>
         </PageLoader>
       </div>
+
+      <div className="modal-subscription-modal-backdrop" style={{display: showSubscriptionsModal ? 'flex' : 'none'}}>
+        <div className="modal-subscription-modal-container">
+          <div className="modal-subscription-modal-header">
+            <h2 className="modal-subscription-modal-title">Выберите абонемент для записи</h2>
+            <button className="modal-subscription-modal-close" onClick={() => setShowSubscriptionsModal(false)}>
+              <MdClose/>
+            </button>
+          </div>
+          <div className="modal-subscription-modal-content">
+            <div className="modal-subscription-cards-container">
+              {lesson.fitting_subscriptions && lesson.fitting_subscriptions.map((subscription) => (
+                <div
+                  key={subscription.id}
+                  className={`modal-subscription-card ${selectedSubscription?.id === subscription.id ? 'modal-selected' : ''}`}
+                  onClick={() => {
+                    if (selectedSubscription?.id === subscription.id) {
+                      setSelectedSubscription(null);
+                    } else {
+                      setSelectedSubscription(subscription);
+                    }
+                  }}
+                >
+                  <div className="modal-subscription-card-icon">
+                    <MdCreditCard/>
+                  </div>
+                  <div className="modal-subscription-card-content">
+                    <h3 className="modal-subscription-card-title">{subscription.subscription_template.name}</h3>
+                    <p className="modal-subscription-card-description">{subscription.subscription_template.description}</p>
+                    <div className="modal-subscription-card-lessons-left">
+                      <span className="modal-lessons-left-label">Осталось занятий:</span>
+                      <span className="modal-lessons-left-value">{subscription.lessons_left}</span>
+                    </div>
+                  </div>
+                  <div className="modal-subscription-card-check">
+                    {selectedSubscription?.id === subscription.id && <MdCheckCircle/>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="modal-subscription-modal-actions">
+            <button
+              className="modal-subscription-modal-button modal-subscription-cancel-button"
+              onClick={() => {
+                setShowSubscriptionsModal(false);
+                setSelectedSubscription(null);
+              }}
+            >
+              Отмена
+            </button>
+            <button
+              className="modal-subscription-modal-button modal-subscription-confirm-button"
+              onClick={handleSubscriptionConfirm}
+              disabled={!selectedSubscription}
+            >
+              <MdCheck className="modal-button-icon"/>
+              Продолжить
+            </button>
+          </div>
+        </div>
+      </div>
+
       <ConfirmationModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={modalInfo.onConfirm}
+        visible={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalInfo.onConfirm}
+        title={confirmModalInfo.title}
+        message={confirmModalInfo.message}
+        confirmText={confirmModalInfo.confirmText}
+        cancelText={confirmModalInfo.cancelText}
+      />
+      <InformationModal
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
         title={modalInfo.title}
         message={modalInfo.message}
-        confirmText={modalInfo.confirmText}
-        cancelText={modalInfo.cancelText}
       />
     </>
   );

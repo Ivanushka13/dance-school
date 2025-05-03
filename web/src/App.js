@@ -22,6 +22,7 @@ import CreateSlot from './pages/createSlot/CreateSlot';
 import Group from './pages/group/Group';
 import Applications from './pages/applications/Applications';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
+import Slots from './pages/slots/Slots';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/request-details/:request_id" element={<RequestDetails/>}/>
           <Route path="/group/:group_id" element={<Group/>}/>
           <Route path="/applications" element={<Applications/>}/>
+          <Route path="/slots" element={<Slots/>}/>
           <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
       </Router>

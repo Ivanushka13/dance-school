@@ -1,6 +1,6 @@
-.page-wrapper {
+.profile-page-wrapper {
     min-height: 100vh;
-    background-color: #f5f5f5;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
 }
 
 .profile-container {
@@ -130,8 +130,8 @@
 
 .profile-level-badge:hover {
     transform: translateY(-4px);
-
 }
+
 .groups-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -148,8 +148,6 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    border-color: #f5f5f5;
-    border-width: 2px;
 }
 
 .group-card h4 {
@@ -177,7 +175,7 @@
 
 .group-card p:hover {
     transform: translateY(-3px);
-    background-color: rgba(85, 85, 85, 0.15);
+    background-color: rgba(113, 113, 113, 0.12);
 }
 
 .group-card p svg {
@@ -200,104 +198,101 @@
     border-color: rgba(0, 0, 0, 0.08);
 }
 
-.subscription-card:hover, .group-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 
-.subscription-card h4, .group-card h4 {
-    color: #1a1a1a;
-    margin-bottom: 1.25rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.subscription-card p, .group-card p {
-    color: #333;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
+.profile-container .subscriptions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding-left: 0;
 }
 
 
-.profile-container .subscription-card {
+.profile-subscription-card {
     background: white;
     border-radius: 20px;
-    padding: 20px;
-    border: 2px solid #4CAF50;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    margin: 0;
-    position: relative;
-}
-
-.profile-container .subscription-card:hover {
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-}
-
-.profile-container .card-header {
+    padding: 1.5rem 1.8rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    border: 2px solid #4CAF50;
+    max-width: 350px;
+}
+
+.profile-subscription-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+
+.profile-card-header {
+    display: flex;
+    justify-content: flex-start;
     align-items: flex-start;
-    margin-bottom: 18px;
+    margin-bottom: 1.5rem;
     position: relative;
 }
 
-.profile-container .card-title {
-    font-size: 1.5rem;
+.profile-card-title {
+    font-size: 1.6rem;
     font-weight: 700;
-    color: #333;
-    margin-bottom: 0;
+    color: #1a1a1a;
     line-height: 1.2;
+    max-width: 100%;
+    margin-top: 0.3rem;
 }
 
-.profile-container .active-badge {
-    position: static;
+.profile-active-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     background-color: #4CAF50;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
     box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
-    margin-left: 10px;
-    display: inline-block;
+    z-index: 1;
 }
 
-.profile-container .detail-item {
+.profile-card-details {
+    margin-top: 10px;
+}
+
+.profile-detail-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.8rem;
     border-bottom: 1px solid #eee;
 }
 
-.profile-container .detail-item:last-of-type {
+.profile-detail-item:last-of-type {
     border-bottom: none;
     margin-bottom: 0;
     padding-bottom: 0;
 }
 
-.profile-container .detail-icon {
-    width: 18px;
-    height: 18px;
+.profile-detail-icon {
+    width: 20px;
+    height: 20px;
     color: #4CAF50;
     flex-shrink: 0;
 }
 
-.profile-container .detail-text {
-    font-size: 0.9rem;
+.profile-detail-text {
+    font-size: 0.95rem;
     color: #333;
+    flex: 1;
     font-weight: 500;
 }
 
-.profile-container .subscriptions-grid {
-    display: grid;
-    gap: 1.5rem;
-    padding-left: 0;
-    margin-left: 0;
-}
 
 .no-items-container {
     display: flex;
@@ -316,6 +311,11 @@
     font-size: 50px;
     color: black;
     margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.no-items-icon:hover {
+    transform: translateY(-4px);
 }
 
 .no-items-container h3 {

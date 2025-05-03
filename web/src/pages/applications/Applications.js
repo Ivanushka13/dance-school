@@ -7,6 +7,7 @@ import {MdArrowBack, MdAccessTime, MdPerson, MdOutlineBookmark, MdDateRange, MdA
 import './Applications.css';
 import {formatDateToDMY, formatTimeToHM} from '../../util';
 import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
 
 const Applications = () => {
 
@@ -15,18 +16,13 @@ const Applications = () => {
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
 
 
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const request = {
-          is_group: false,
-          student_ids: [session.id]
-        }
-
-        console.log(request);
-
         const response = await apiRequest({
           method: 'POST',
           url: '/lessons/search/student',
@@ -37,7 +33,11 @@ const Applications = () => {
         setLoading(false);
 
       } catch (error) {
-        console.error('Ошибка при получении заявок:', error);
+        setModalInfo({
+          title: 'Ошибка при загрузке заявок',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
         setLoading(false);
       }
     };
@@ -128,6 +128,12 @@ const Applications = () => {
           </div>
         </PageLoader>
       </div>
+      <InformationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
     </>
   );
 };

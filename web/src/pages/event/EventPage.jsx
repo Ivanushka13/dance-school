@@ -1,18 +1,21 @@
 import "./EventPage.css"
 import NavBar from "../../components/navbar/NavBar";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {MdSearch} from 'react-icons/md';
 import {EventListItem} from "../../components/EventListItem/EventListItem";
 import EventFilters from "../../components/EventFilters/EventFilters";
 import {sortData} from "../../util";
 import {apiRequest} from "../../util/apiService";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import InformationModal from "../../components/modal/info/InformationModal";
 
 const EventPage = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTags, setSearchTags] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -26,7 +29,11 @@ const EventPage = () => {
         setEvents(response.events);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке мероприятий',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
         setLoading(false);
       }
     }
@@ -53,7 +60,11 @@ const EventPage = () => {
         setLoading(false);
 
       } catch (error) {
-        console.log(error);
+        setModalInfo({
+          title: 'Ошибка при загрузке типов мероприятий',
+          message: error.message || String(error),
+        });
+        setShowModal(true);
         setLoading(false);
       }
     }
@@ -77,36 +88,44 @@ const EventPage = () => {
   };
 
   return (
-    <div className="event-page">
-      <NavBar/>
-      <div className="body">
-        <PageLoader loading={loading} text="Загрузка мероприятий...">
-          <div className="search-bar">
-            <div className="search">
-              <MdSearch size={24} color="#666"/>
-              <input
-                type="text"
-                placeholder="Поиск мероприятий..."
-                onChange={(e) => setSearchText(e.target.value)}
-                value={searchText}
-              />
+    <>
+      <div className="event-page">
+        <NavBar/>
+        <div className="body">
+          <PageLoader loading={loading} text="Загрузка мероприятий...">
+            <div className="search-bar">
+              <div className="search">
+                <MdSearch size={24} color="#666"/>
+                <input
+                  type="text"
+                  placeholder="Поиск мероприятий..."
+                  onChange={(e) => setSearchText(e.target.value)}
+                  value={searchText}
+                />
+              </div>
             </div>
-          </div>
 
-          <EventFilters
-            filters={searchTags}
-            onChange={updateTagsState}
-            onClear={clearFilters}
-          />
+            <EventFilters
+              filters={searchTags}
+              onChange={updateTagsState}
+              onClear={clearFilters}
+            />
 
-          <div className="events-section">
-            {filteredData.map((item) => (
-              <EventListItem key={item.id} event={item}/>
-            ))}
-          </div>
-        </PageLoader>
+            <div className="events-section">
+              {filteredData.map((item) => (
+                <EventListItem key={item.id} event={item}/>
+              ))}
+            </div>
+          </PageLoader>
+        </div>
       </div>
-    </div>
+      <InformationModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
+    </>
   );
 };
 

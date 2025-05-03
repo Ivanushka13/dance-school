@@ -20,14 +20,99 @@
     color: #666;
 }
 
+.class-register-controls {
+    max-width: 1400px;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.view-mode-toggle {
+    position: relative;
+    background-color: #f1f3f5;
+    border-radius: 12px;
+    display: flex;
+    padding: 6px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.view-mode-button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 12px;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    border-radius: 8px;
+}
+
+.view-mode-button.active {
+    color: #fff;
+}
+
+.view-mode-slider {
+    position: absolute;
+    width: 50%;
+    height: calc(100% - 12px);
+    background: linear-gradient(135deg, #1a1a1a, #444);
+    border-radius: 8px;
+    top: 6px;
+    transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1;
+}
+
 .no-results {
     text-align: center;
-    padding: 2rem;
+    padding: 3rem 2rem;
     background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    max-width: 800px;
-    margin: 2rem auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
+    margin: 3rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-results-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: #777;
+    font-size: 2.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.no-results-icon:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    color: #1a1a1a;
+}
+
+.no-results-icon svg {
+    font-size: 40px;
+}
+
+.no-results-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
 }
 
 .no-results p {
@@ -66,6 +151,7 @@
 
 .dance-class-info {
     padding: 1.5rem;
+    position: relative;
 }
 
 .dance-class-info h2 {
@@ -78,6 +164,25 @@
     color: #666;
     line-height: 1.6;
     margin: 0;
+    margin-bottom: 2rem;
+}
+
+.class-type-badge {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background-color: #f1f3f5;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.dance-class-card:hover .class-type-badge {
+    background-color: #1a1a1a;
+    color: white;
 }
 
 .registration-dialog .MuiDialog-paper {

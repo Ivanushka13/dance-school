@@ -21,10 +21,7 @@ const LoginPage = () => {
   const [emailError, setEmailError] = useState('');
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [modalInfo, setModalInfo] = useState({
-    title: '',
-    message: ''
-  });
+  const [modalInfo, setModalInfo] = useState({});
 
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,7 +61,6 @@ const LoginPage = () => {
         dispatch(setLevel(meResponse.level));
       }
 
-      setLoading(true);
       navigate('/profile');
 
     } catch (error) {
@@ -78,8 +74,8 @@ const LoginPage = () => {
   }
 
   return (
-    <>
-      <PageLoader loading={loading} text="Загрузка...">
+    <div className="login-page-wrapper">
+      <PageLoader loading={loading} text="Авторизация..." minHeight="100vh">
         <div className="login-container">
           <div className="login-overlay">
             <div className="login-form-container">
@@ -125,7 +121,7 @@ const LoginPage = () => {
         title={modalInfo.title}
         message={modalInfo.message}
       />
-    </>
+    </div>
   )
 }
 
