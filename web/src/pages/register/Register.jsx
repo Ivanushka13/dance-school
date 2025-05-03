@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -21,7 +21,7 @@ import {styled} from '@mui/material/styles';
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, DatePicker, TimePicker} from '@mui/x-date-pickers';
 import {ru} from 'date-fns/locale';
-import {MdPerson, MdRoom, MdClass, MdClose, MdSearch, MdError} from 'react-icons/md';
+import {MdPerson, MdRoom, MdClass, MdClose, MdSearch, MdError, MdInfoOutline} from 'react-icons/md';
 import NavBar from '../../components/navbar/NavBar';
 import './Register.css';
 import {apiRequest} from "../../util/apiService";
@@ -61,7 +61,12 @@ const CloseButton = styled(IconButton)({
   position: 'absolute',
   right: '8px',
   top: '8px',
-  color: 'white'
+  color: 'white',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    transform: 'translateY(-2px)'
+  }
 });
 
 const StyledListItem = styled(ListItem)({
@@ -122,7 +127,6 @@ const Register = () => {
   const [selectedLessonType, setSelectedLessonType] = useState(null);
   const [description, setDescription] = useState('');
   const [allowNeighbors, setAllowNeighbors] = useState(false);
-  const [showClassroomSelection, setClassroomSelection] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmModalInfo, setConfirmModalInfo] = useState({});
@@ -130,81 +134,81 @@ const Register = () => {
   const [modalInfo, setModalInfo] = useState({});
   const [errors, setErrors] = useState({});
 
+  const fetchClassrooms = useCallback(async () => {
+    fetchClasses(
+      createISODate(startDate, startTime),
+      createISODate(endDate, endTime),
+      allowNeighbors
+    ).then((response) => {
+      console.log("Fetched classrooms");
+      setClasses(response.classrooms);
+    }).catch((error) => {
+      setModalInfo({
+        title: "Ошибка во время загрузки залов",
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+      setLoading(false);
+    });
+  }, [allowNeighbors, endDate, endTime, startDate, startTime]);
+
+  const fetchLessonTypes = useCallback(async () => {
+    try {
+      const response = await apiRequest({
+        method: 'POST',
+        url: '/lessonTypes/search/full-info',
+        data: {
+          is_group: false,
+          terminated: false
+        }
+      });
+
+      setLessonTypes(response.lesson_types);
+
+    } catch (error) {
+      setModalInfo({
+        title: "Ошибка во время загрузки типов занятий",
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+      setLoading(false);
+    }
+  }, [])
+
+  const fetchStudents = useCallback(async () => {
+    try {
+      const response = await apiRequest({
+        method: 'POST',
+        url: '/students/search/full-info',
+        data: {terminated: false}
+      });
+
+      setStudents(response.students);
+      setLoading(false);
+
+    } catch (error) {
+      setModalInfo({
+        title: "Ошибка во время загрузки учеников",
+        message: error.message || String(error)
+      });
+      setShowInfoModal(true);
+      setLoading(false);
+    }
+  }, [])
+
   useEffect(() => {
     if (startDate !== null && endDate !== null && startTime !== null && endTime !== null) {
-      fetchClasses(
-        createISODate(startDate, startTime),
-        createISODate(endDate, endTime),
-        allowNeighbors
-      ).then((response) => {
-        setClasses(response.classrooms);
-        setClassroomSelection(true);
-      }).catch((error) => {
-        setClassroomSelection(false);
-        setModalInfo({
-          title: "Ошибка во время загрузки залов",
-          message: error.message || String(error)
-        });
-        setShowInfoModal(true);
-        setLoading(false);
-      });
-    } else {
-      setClassroomSelection(false);
+      fetchClassrooms();
     }
-  }, [startDate, endDate, startTime, endTime, allowNeighbors]);
+  }, [fetchClassrooms]);
 
   useEffect(() => {
-    const fetchLessonTypes = async () => {
-      try {
-
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/lessonTypes/search/full-info',
-          data: {
-            is_group: false,
-            terminated: false
-          }
-        });
-
-        setLessonTypes(response.lesson_types);
-
-      } catch (error) {
-        setModalInfo({
-          title: "Ошибка во время загрузки типов занятий",
-          message: error.message || String(error)
-        });
-        setShowInfoModal(true);
-        setLoading(false);
-      }
-    };
-
     fetchLessonTypes();
-  }, []);
+  }, [fetchLessonTypes]);
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/students/search/full-info',
-          data: {terminated: false}
-        });
-
-        setStudents(response.students);
-        setLoading(false);
-
-      } catch (error) {
-        setModalInfo({
-          title: "Ошибка во время загрузки учеников",
-          message: error.message || String(error)
-        });
-        setShowInfoModal(true);
-        setLoading(false);
-      }
-    };
-
     fetchStudents();
-  }, []);
+  }, [fetchStudents]);
 
   const handleLessonNameChange = (e) => {
     setLessonName(e.target.value);
@@ -215,6 +219,7 @@ const Register = () => {
 
   const handleStartDateChange = (value) => {
     setStartDate(value);
+    setSelectedClass(null);
     if (errors.startDate) {
       setErrors(prev => ({...prev, startDate: ''}));
     }
@@ -222,6 +227,7 @@ const Register = () => {
 
   const handleEndDateChange = (value) => {
     setEndDate(value);
+    setSelectedClass(null);
     if (errors.endDate) {
       setErrors(prev => ({...prev, endDate: ''}));
     }
@@ -229,6 +235,7 @@ const Register = () => {
 
   const handleStartTimeChange = (value) => {
     setStartTime(value);
+    setSelectedClass(null);
     if (errors.startTime) {
       setErrors(prev => ({...prev, startTime: ''}));
     }
@@ -236,6 +243,7 @@ const Register = () => {
 
   const handleEndTimeChange = (value) => {
     setEndTime(value);
+    setSelectedClass(null);
     if (errors.endTime) {
       setErrors(prev => ({...prev, endTime: ''}));
     }
@@ -251,7 +259,6 @@ const Register = () => {
   };
 
   const clearForm = () => {
-    setClassroomSelection(false);
     setLessonName('');
     setStartDate(null);
     setEndDate(null);
@@ -438,6 +445,7 @@ const Register = () => {
                 <TextField
                   fullWidth
                   value={lessonName}
+                  placeholder='Введите название занятия'
                   onChange={handleLessonNameChange}
                   className={`form-control ${errors.lessonName ? 'error' : ''}`}
                   sx={{
@@ -596,49 +604,44 @@ const Register = () => {
                 </Box>
               </LocalizationProvider>
 
-              {showClassroomSelection &&
-                <>
-                  <div className="form-group">
-                    <label className="form-label required">Зал</label>
-                    <TextField
-                      fullWidth
-                      value={selectedClass ? selectedClass.name : ''}
-                      placeholder="Выберите зал"
-                      onClick={() => handleDialogOpen('room')}
-                      className={`form-control ${errors.selectedClass ? 'error' : ''}`}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start" sx={{marginRight: '8px'}}>
-                            <MdRoom/>
-                          </InputAdornment>
-                        ),
-                        readOnly: true,
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&.Mui-focused fieldset': {
-                            borderColor: '#1a1a1a'
-                          }
-                        },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: '#1a1a1a'
-                        },
-                        '& .MuiInputBase-input::placeholder': {
-                          color: 'rgba(0, 0, 0, 0.6)',
-                          opacity: 1
-                        }
-                      }}
-                    />
-                    {errors.selectedClass && (
-                      <div className="error-text">
-                        <MdError/>
-                        <span>{errors.selectedClass}</span>
-                      </div>
-                    )}
+              <div className="form-group">
+                <label className="form-label required">Зал</label>
+                <TextField
+                  fullWidth
+                  value={selectedClass ? selectedClass.name : ''}
+                  placeholder="Выберите зал"
+                  onClick={() => handleDialogOpen('room')}
+                  className={`form-control ${errors.selectedClass ? 'error' : ''}`}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{marginRight: '8px'}}>
+                        <MdRoom/>
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#1a1a1a'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#1a1a1a'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(0, 0, 0, 0.6)',
+                      opacity: 1
+                    }
+                  }}
+                />
+                {errors.selectedClass && (
+                  <div className="error-text">
+                    <MdError/>
+                    <span>{errors.selectedClass}</span>
                   </div>
-                </>
-              }
-
+                )}
+              </div>
               <div className="form-group">
                 <label className="form-label required">Ученик</label>
                 <TextField
@@ -865,17 +868,46 @@ const Register = () => {
                 flexDirection: 'column'
               }}>
                 <List sx={{flexGrow: 1}}>
-                  {openDialog === 'room' && filterItems(classes, searchQuery).map((item) => (
-                    <StyledListItem
-                      button
-                      key={item.id}
-                      onClick={() => handleSelect('room', item)}
-                    >
-                      <ListItemText
-                        primary={item.name}
-                      />
-                    </StyledListItem>
-                  ))}
+                  {openDialog === 'room' && filterItems(classes, searchQuery).length > 0 ? (
+                    filterItems(classes, searchQuery).map((item) => (
+                      <StyledListItem
+                        button
+                        key={item.id}
+                        onClick={() => handleSelect('room', item)}
+                      >
+                        <ListItemText
+                          primary={item.name}
+                        />
+                      </StyledListItem>
+                    ))
+                  ) : openDialog === 'room' && (
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                      textAlign: 'center',
+                      padding: '2rem',
+                      color: '#666'
+                    }}>
+                      <MdInfoOutline style={{
+                        fontSize: '48px',
+                        marginBottom: '16px',
+                        color: '#999',
+                      }}/>
+                      <Typography sx={{
+                        fontWeight: 500,
+                        fontSize: '1rem',
+                        backgroundColor: '#f5f5f5',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        maxWidth: '300px'
+                      }}>
+                        В выбранные дату и время нет доступных залов.
+                      </Typography>
+                    </Box>
+                  )}
                   {openDialog === 'student' && filterItems(students, searchQuery).map((student) => (
                     <StyledListItem
                       button

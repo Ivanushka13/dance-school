@@ -105,8 +105,23 @@
 }
 
 .form-group textarea {
-    min-height: 100px;
+    font-family: inherit;
+    font-size: inherit;
     resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+    color: inherit;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    transition: border-color 0.2s ease;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
 }
 
 .form-group .select-input {

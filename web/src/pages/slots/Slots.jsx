@@ -8,6 +8,7 @@ import './Slots.css';
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
 import {formatTime} from "../../util";
+import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 
 const Slots = () => {
   const session = useSelector(state => state.session);
@@ -15,8 +16,10 @@ const Slots = () => {
 
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({});
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalInfo, setConfirmModalInfo] = useState({});
 
   useEffect(() => {
     fetchSlots();
@@ -40,7 +43,7 @@ const Slots = () => {
         title: 'Ошибка при загрузке слотов',
         message: error.message || String(error),
       });
-      setShowModal(true);
+      setShowInfoModal(true);
     } finally {
       setLoading(false);
     }
@@ -49,10 +52,22 @@ const Slots = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  const handleDeleteSlot = (slot_id) => {
+    setConfirmModalInfo({
+      title: 'Подтверждение удаления слота',
+      message: `Вы уверены, что хотите удалить слот?`,
+      confirmText: 'Подтвердить',
+      cancelText: 'Отменить',
+      onConfirm: () => deleteSlot(slot_id)
+    });
+    setShowConfirmModal(true);
+  }
   
-  const handleDeleteSlot = async (slot_id) => {
+  const deleteSlot = async (slot_id) => {
     try {
       setLoading(true);
+      setShowConfirmModal(false);
       
       await apiRequest({
         method: 'DELETE',
@@ -65,14 +80,14 @@ const Slots = () => {
         title: 'Слот успешно удален',
         message: '',
       });
-      setShowModal(true);
+      setShowInfoModal(true);
 
     } catch (error) {
       setModalInfo({
         title: 'Ошибка при удалении слота',
         message: error.message || String(error),
       });
-      setShowModal(true);
+      setShowInfoModal(true);
     } finally {
       setLoading(false);
     }
@@ -146,9 +161,18 @@ const Slots = () => {
           </div>
         </PageLoader>
       </div>
+      <ConfirmationModal
+        visible={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalInfo.onConfirm}
+        title={confirmModalInfo.title}
+        message={confirmModalInfo.message}
+        confirmText={confirmModalInfo.confirmText}
+        cancelText={confirmModalInfo.cancelText}
+      />
       <InformationModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
         title={modalInfo.title}
         message={modalInfo.message}
       />

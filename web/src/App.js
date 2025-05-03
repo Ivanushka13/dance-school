@@ -23,32 +23,45 @@ import Group from './pages/group/Group';
 import Applications from './pages/applications/Applications';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
 import Slots from './pages/slots/Slots';
+import ScrollToTop from "./util/ScrollToTop";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-      <Router>
+      <Router future={{v7_startTransition: true}}>
+        <ScrollToTop/>
         <Routes>
-          <Route path="/events" element={<EventPage/>}/>
-          <Route path="/profile" element={<ProfilePage/>}/>
-          <Route path="/editProfile" element={<EditProfile/>}/>
-          <Route path="/schedule" element={<SchedulePage/>}/>
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/signup" element={<SignUpPage/>}/>
-          <Route path="/register/individual" element={<Register/>}/>
-          <Route path="/subscriptions" element={<Subscriptions/>}/>
-          <Route path="/requests" element={<Requests/>}/>
-          <Route path="/class-register" element={<ClassRegister/>}/>
-          <Route path="/group-lessons" element={<GroupLessons/>}/>
-          <Route path="/lesson/:lesson_id" element={<Lesson/>}/>
-          <Route path="/slot-selection" element={<SlotSelection/>}/>
-          <Route path="/register" element={<Register/>}/>
-          <Route path="/createSlot" element={<CreateSlot/>}/>
-          <Route path="/" element={<Navigate to="/login"/>}/>
-          <Route path="/request-details/:request_id" element={<RequestDetails/>}/>
-          <Route path="/group/:group_id" element={<Group/>}/>
-          <Route path="/applications" element={<Applications/>}/>
-          <Route path="/slots" element={<Slots/>}/>
+
+          <Route element={<ProtectedRoute/>}>
+            <Route path="/events" element={<EventPage/>}/>
+            <Route path="/profile" element={<ProfilePage/>}/>
+            <Route path="/editProfile" element={<EditProfile/>}/>
+            <Route path="/schedule" element={<SchedulePage/>}/>
+            <Route path="/lesson/:lesson_id" element={<Lesson/>}/>
+            <Route path="/group/:group_id" element={<Group/>}/>
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['student']}/>}>
+            <Route path="/subscriptions" element={<Subscriptions/>}/>
+            <Route path="/class-register" element={<ClassRegister/>}/>
+            <Route path="/slot-selection" element={<SlotSelection/>}/>
+            <Route path="/applications" element={<Applications/>}/>
+            <Route path="/group-lessons" element={<GroupLessons/>}/>
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['teacher']}/>}>
+            <Route path="/request-details/:request_id" element={<RequestDetails/>}/>
+            <Route path="/slots" element={<Slots/>}/>
+            <Route path="/requests" element={<Requests/>}/>
+            <Route path="/register" element={<Register/>}/>
+            <Route path="/createSlot" element={<CreateSlot/>}/>
+          </Route>
+
+          <Route path="/" element={<Navigate to="/login" replace/>}/>
+          <Route path="/not-fount" element={<NotFoundPage/>}/>
           <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
       </Router>

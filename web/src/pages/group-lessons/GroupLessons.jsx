@@ -62,7 +62,7 @@ const GroupLessons = () => {
             is_confirmed: true,
             is_group: true,
             terminated: false,
-            is_participant: false
+            in_group: false
           }
         });
 

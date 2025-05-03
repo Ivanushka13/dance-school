@@ -44,7 +44,6 @@ const SchedulePage = () => {
           data: {
             date_from: date_from.toISOString(),
             date_to: date_to.toISOString(),
-            is_confirmed: true,
             terminated: false
           }
         });

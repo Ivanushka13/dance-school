@@ -7,7 +7,7 @@ import PageLoader from "../../components/PageLoader/PageLoader";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import InformationModal from "../../components/modal/info/InformationModal";
 import EnumModal from "../../components/modal/enum/EnumModal";
-import {setSession} from "../../redux/slices/sessionSlice";
+import {setSession, updateSessionField} from "../../redux/slices/sessionSlice";
 import {setUser} from "../../redux/slices/userSlice";
 import {setLevel} from "../../redux/slices/levelSlice";
 import {createSubscription, fetchSubscriptions} from "../../api/subscriptions";
@@ -82,19 +82,14 @@ export default function Subscriptions() {
 
   const fetchUserInfo = async () => {
     fetchUserData().then((response) => {
-      dispatch(setSession(response));
-      dispatch(setUser(response.user));
-
-      if (response.role === 'student') {
-        dispatch(setLevel(response.level));
-      }
+      dispatch(updateSessionField({subscriptions: response.subscriptions}));
     }).catch((error) => {
       setModalInfo({
         title: 'Ошибка при обновлении данных пользователя',
         message: error.message || String(error),
       });
       setShowInfoModal(true);
-    })
+    });
   }
 
   const createPayment = async (payment_type) => {
@@ -217,7 +212,9 @@ export default function Subscriptions() {
               ))}
             </div>
 
-            <button className="subscriptions-page request-button" onClick={() => handlePurchase(subscription)}>Приобрести</button>
+            <button className="subscriptions-page request-button"
+                    onClick={() => handlePurchase(subscription)}>Приобрести
+            </button>
           </div>
         ))}
       </div>

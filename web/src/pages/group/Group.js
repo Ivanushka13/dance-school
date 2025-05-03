@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import NavBar from "../../components/navbar/NavBar";
 import './Group.css';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {apiRequest} from "../../util/apiService";
 import {
   MdGroup,
@@ -17,6 +17,8 @@ import {Button} from "@mui/material";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {fetchUserData} from "../../api/auth";
+import {updateSessionField} from "../../redux/slices/sessionSlice";
 
 const fetchGroup = async (
   group_id
@@ -31,8 +33,9 @@ export const Group = () => {
 
   const user_role = useSelector(state => state.session.role);
   const user_id = useSelector(state => state.session.id);
-  const user_subscriptions = useSelector(state => state.session);
+  const session = useSelector(state => state.session);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const {group_id} = useParams();
@@ -47,58 +50,68 @@ export const Group = () => {
   const [confirmModalInfo, setConfirmModalInfo] = useState({});
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({});
+  const [refreshData, setRefreshData] = useState(0);
 
-  useEffect(() => {
-    fetchGroup(group_id).then((groupResponse) => {
-      setGroup(groupResponse);
-      setStudents(groupResponse.students);
-      setTeachers(groupResponse.teachers);
-      setDanceStyles(groupResponse.dance_styles);
+
+  const setGroupInfo = useCallback(async (group_info) => {
+    if (user_role === 'student') {
+      await setJoinedGroup(group_info.students.some((student) => student.id === user_id));
+    }
+    Promise.all([
+      setGroup(group_info),
+      setStudents(group_info.students),
+      setTeachers(group_info.teachers),
+      setDanceStyles(group_info.dance_styles),
 
       setAvailableJoin(
-        groupResponse.max_capacity > groupResponse.students.length &&
-        groupResponse.fitting_subscriptions &&
-        groupResponse.fitting_subscriptions.length > 0
-      );
+        group_info.max_capacity > group_info.students.length &&
+        group_info.fitting_subscriptions &&
+        group_info.fitting_subscriptions.length > 0
+      )
+    ]).then(() => setLoading(false));
+  }, [user_id, user_role, refreshData]);
 
-      if (user_role === 'student') {
-        const joined = groupResponse.students.some((student) => student.id === user_id);
-        setJoinedGroup(joined);
-      }
+  const fetchGroupData = useCallback(async () => {
+    fetchGroup(group_id).then(async (groupResponse) => {
+      await setGroupInfo(groupResponse);
     }).catch((error) => {
       setModalInfo({
         title: 'Ошибка при загрузке данных группы',
         message: error.message || String(error),
       });
       setShowInfoModal(true);
-    }).finally(() => setLoading(false));
-  }, [joinedGroup]);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
-  const handleJoinGroup = () => {
-    setShowConfirmModal(true);
-    setConfirmModalInfo({
-      title: 'Подтверждение записи',
-      message: 'Вы уверены, что хотите записаться в группу?',
-      confirmText: 'Подтвердить',
-      cancelText: 'Отменить',
-      onConfirm: () => joinGroup()
     });
-  }
+  }, [group_id, setGroupInfo]);
+
+  const fetchUserInfo = useCallback(async () => {
+    fetchUserData().then((response) => {
+      dispatch(updateSessionField({groups: response.groups}));
+    }).catch((error) => {
+      setModalInfo({
+        title: 'Ошибка при обновлении данных пользователя',
+        message: error.message || String(error),
+      });
+      setShowInfoModal(true);
+    })
+  }, [dispatch, session.groups]);
+
+  useEffect(() => {
+    fetchGroupData();
+  }, [fetchGroupData]);
 
   const joinGroup = async () => {
     try {
       setLoading(true);
       setShowConfirmModal(false);
 
-      const request = await apiRequest({
+      await apiRequest({
         method: 'POST',
         url: `students/groups/${user_id}/${group.id}`
       });
 
+      await fetchUserInfo();
+
+      setRefreshData((prev) => prev + 1);
       setJoinedGroup(true);
 
       setModalInfo({
@@ -114,10 +127,47 @@ export const Group = () => {
         message: error.message || String(error),
       });
       setShowInfoModal(true);
-    } finally {
       setLoading(false);
     }
   };
+
+  const removeStudent = async (student_id) => {
+    try {
+      setLoading(true);
+      setShowConfirmModal(false);
+
+      await apiRequest({
+        method: 'DELETE',
+        url: `students/groups/${student_id}/${group.id}`
+      });
+
+      await fetchUserInfo();
+
+      setRefreshData((prev) => prev + 1);
+      setJoinedGroup(false);
+      setShowInfoModal(true);
+
+    } catch (error) {
+      setShowConfirmModal(false);
+      setModalInfo({
+        title: 'Ошибка при удалении студента из группы',
+        message: error.message || String(error),
+      });
+      setShowInfoModal(true);
+      setLoading(false);
+    }
+  };
+
+  const handleJoinGroup = () => {
+    setShowConfirmModal(true);
+    setConfirmModalInfo({
+      title: 'Подтверждение записи',
+      message: 'Вы уверены, что хотите записаться в группу?',
+      confirmText: 'Подтвердить',
+      cancelText: 'Отменить',
+      onConfirm: () => joinGroup()
+    });
+  }
 
   const handleLeaveGroup = (student_id) => {
     setShowConfirmModal(true);
@@ -151,29 +201,8 @@ export const Group = () => {
     });
   };
 
-  const removeStudent = async (student_id) => {
-    try {
-      setLoading(true);
-      setShowConfirmModal(false);
-
-      const request = await apiRequest({
-        method: 'DELETE',
-        url: `students/groups/${student_id}/${group.id}`
-      });
-
-      setJoinedGroup(false);
-      setShowInfoModal(true);
-
-    } catch (error) {
-      setShowConfirmModal(false);
-      setModalInfo({
-        title: 'Ошибка при удалении студента из группы',
-        message: error.message || String(error),
-      });
-      setShowInfoModal(true);
-    } finally {
-      setLoading(false);
-    }
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   return (

@@ -246,6 +246,15 @@
   margin: 0 0 1.2rem 0;
   text-align: center;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  color: #333;
 }
 
 .lesson-teachers-header h2::after {
@@ -404,7 +413,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  margin-bottom: 1.5rem;
 }
 
 .group-back-button:hover {
@@ -710,4 +718,30 @@
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(2px);
   }
+}
+
+.lesson-student-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+  border: 1px solid #f0f0f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.lesson-student-info {
+  padding: 0.5rem;
+}
+
+.lesson-student-section .lesson-teacher-item {
+  background-color: #f8f9fa;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.lesson-student-section .lesson-teacher-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }

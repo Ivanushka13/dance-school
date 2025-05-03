@@ -7,7 +7,7 @@ const InformationModal = ({
   onClose,
   title,
   message,
-  actionText = 'Oк'
+  actionText = 'Закрыть'
 }) => {
   const navigate = useNavigate();
 
