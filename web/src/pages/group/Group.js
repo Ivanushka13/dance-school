@@ -86,13 +86,7 @@ export const Group = () => {
   const fetchUserInfo = useCallback(async () => {
     fetchUserData().then((response) => {
       dispatch(updateSessionField({groups: response.groups}));
-    }).catch((error) => {
-      setModalInfo({
-        title: 'Ошибка при обновлении данных пользователя',
-        message: error.message || String(error),
-      });
-      setShowInfoModal(true);
-    })
+    });
   }, [dispatch, session.groups]);
 
   useEffect(() => {

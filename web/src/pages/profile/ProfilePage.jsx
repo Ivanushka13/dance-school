@@ -11,7 +11,11 @@ import {
   MdGroups,
   MdPerson,
   MdOutlineClass,
-  MdSchedule
+  MdSchedule,
+  MdEmail,
+  MdPhone,
+  MdInfo,
+  MdStar
 } from 'react-icons/md';
 import {useEffect, useState} from "react";
 import PageLoader from "../../components/PageLoader/PageLoader";
@@ -48,7 +52,7 @@ const ProfilePage = () => {
   const handleApplications = () => {
     navigate('/applications');
   };
-  
+
   const handleSlots = () => {
     navigate('/slots');
   };
@@ -80,29 +84,74 @@ const ProfilePage = () => {
 
       <div className="info-section">
         <h3>Основная информация</h3>
-        <div className="info-grid">
-          <div className="info-item">
-            <label>Email</label>
-            <p>{user?.email || 'Не указан'}</p>
+        <div className="user-info-cards">
+          <div className="user-info-card">
+            <div className="user-info-icon">
+              <MdEmail/>
+            </div>
+            <div className="user-info-content">
+              <label>Email</label>
+              <p>{user?.email || 'Не указан'}</p>
+            </div>
           </div>
-          <div className="info-item">
-            <label>Телефон</label>
-            <p>{user?.phone_number || 'Не указан'}</p>
+
+          <div className="user-info-card">
+            <div className="user-info-icon">
+              <MdPhone/>
+            </div>
+            <div className="user-info-content">
+              <label>Телефон</label>
+              <p>{user?.phone_number || 'Не указан'}</p>
+            </div>
           </div>
-          <div className="info-item">
-            <label>О себе</label>
-            <p>{user?.description || 'Нет описания'}</p>
+
+          {session.role === 'student' && (
+            <div className="user-info-card">
+              <div className="user-info-icon">
+                <MdStar/>
+              </div>
+              <div className="user-info-content">
+                <label>Уровень подготовки</label>
+                <p>{level.name || 'Не указан'}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="user-info-card user-info-card-full">
+            <div className="user-info-icon">
+              <MdInfo/>
+            </div>
+            <div className="user-info-content">
+              <label>О себе</label>
+              <p className="user-description">{user?.description || 'Нет описания'}</p>
+            </div>
           </div>
         </div>
       </div>
 
+      <div className="info-section">
+        <h3>Мои группы</h3>
+        {session.groups && session.groups.length > 0 ? (
+          <div className="groups-grid">
+            {session.groups.map(group => (
+              <div key={group.id} className="group-card" onClick={() => handleGroupClick(group.id)}>
+                <h4>{group.name}</h4>
+                <p><MdOutlineClass/> {group.level.name}</p>
+                <p><MdPerson/> {group?.description || "Нет описания"}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-items-container">
+            <MdGroups className="no-items-icon"/>
+            <h3>Вы пока не записаны ни в одну группу</h3>
+            <p>Запишитесь на занятия в разделе "Запись"</p>
+          </div>
+        )}
+      </div>
+
       {session.role === 'student' && (
         <>
-          <div className="info-section">
-            <h3>Уровень подготовки</h3>
-            <p className="profile-level-badge">{level.name || 'Не указан'}</p>
-          </div>
-
           <div className="info-section">
             <h3>Действующие абонементы</h3>
             {session.subscriptions && session.subscriptions.filter(sub => sub.payment_id !== null).length > 0 ? (
@@ -119,7 +168,7 @@ const ProfilePage = () => {
                         <div className="profile-detail-item">
                           <MdAssessment className="profile-detail-icon"/>
                           <span className="profile-detail-text">
-                          Количество занятий: {sub.subscription_template.lesson_count}
+                          Оставшихся занятий: {sub.lessons_left}
                         </span>
                         </div>
                         <div className="profile-detail-item">
@@ -142,33 +191,13 @@ const ProfilePage = () => {
           </div>
         </>
       )}
-      <div className="info-section">
-        <h3>Мои группы</h3>
-        {session.groups && session.groups.length > 0 ? (
-          <div className="groups-grid">
-            {session.groups.map(group => (
-              <div key={group.id} className="group-card" onClick={() => handleGroupClick(group.id)}>
-                <h4>{group.name}</h4>
-                <p><MdOutlineClass/> {group.level.name}</p>
-                <p><MdPerson/> {group?.description || "Нет описания"}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="no-items-container">
-            <MdGroups className="no-items-icon"/>
-            <h3>Вы пока не записаны ни в одну группу</h3>
-            <p>Запишитесь на занятия в разделе "Запись"</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 
   return (
     <div className="profile-page-wrapper">
-        <NavBar/>
-        <PageLoader loading={loading} text="Загрузка данных...">
+      <NavBar/>
+      <PageLoader loading={loading} text="Загрузка данных...">
         <div className="profile-container">
           {renderUserInfo()}
         </div>

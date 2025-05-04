@@ -30,7 +30,7 @@ export default function Subscriptions() {
   const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
-    fetchSubscriptions({}).then((subscriptions) => {
+    fetchSubscriptions({is_expired: false}).then((subscriptions) => {
       setSubscriptions(subscriptions.subscription_templates);
     }).catch((error) => {
       setModalInfo({

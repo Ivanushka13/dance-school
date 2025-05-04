@@ -329,3 +329,78 @@
     color: #666;
     max-width: 400px;
 }
+
+.user-info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.user-info-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #eaeaea;
+}
+
+.user-info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+}
+
+.user-info-card-full {
+  grid-column: 1 / -1;
+}
+
+.user-info-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background-color: #e9ecef;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #495057;
+  font-size: 1.2rem;
+}
+
+.user-info-icon {
+    transition: all 0.3s ease;
+}
+
+.user-info-card:hover .user-info-icon {
+  transform: scale(1.1);
+}
+
+.user-info-content {
+  flex: 1;
+}
+
+.user-info-content label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.user-info-content p {
+  font-size: 1rem;
+  color: #212529;
+  font-weight: 500;
+  margin: 0;
+  word-break: break-word;
+}
+
+.user-description {
+  line-height: 1.5;
+  white-space: pre-line;
+}

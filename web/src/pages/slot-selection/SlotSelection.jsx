@@ -52,6 +52,7 @@ const SlotSelection = () => {
 
   useEffect(() => {
     setSelectedSlot(null);
+    setAllowNeighbors(false);
 
     const date_from = new Date(selectedDate);
     const date_to = new Date(selectedDate);

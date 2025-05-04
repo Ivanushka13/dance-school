@@ -87,6 +87,7 @@ const LoginPage = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="input-group">
                     <input
+                      name="email"
                       type="email"
                       placeholder="Email"
                       value={email}
@@ -97,6 +98,7 @@ const LoginPage = () => {
                   </div>
                   <div className="input-group">
                     <input
+                      name="password"
                       type="password"
                       placeholder="Пароль"
                       value={password}
