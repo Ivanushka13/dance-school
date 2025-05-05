@@ -1,108 +1,120 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-}
-
-#root {
-    min-width: 100%;
-    background-color: #f5f5f5;
-}
-
-
-.app {
-    min-width: 100%;
-    width: 100%;
-}
-
-
-.list {
+.list-page {
     display: flex;
     width: 100%;
-    background-color: #f5f5f5;
-    min-width: fit-content;
-    padding-right: 64px;
-    position: relative;
-    z-index: 1;
+    height: 100vh;
+    background-color: #f8fafc;
 }
 
-.list-container {
+.list-page-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     width: 100%;
-    background-color: #f5f5f5;
+    background-color: #f8fafc;
+    margin-left: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
 }
 
-
-.MuiAppBar-root {
-    position: fixed !important;
-    width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-}
-
-.MuiAppBar-root .MuiToolbar-root {
-    padding-right: calc(64px + 8px) !important;
-}
-
-/* Base Layout */
-.page-content {
-    padding: 32px;
+.list-page-content {
+    padding: 28px 24px;
     flex: 1;
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 70px);
+    align-items: center;
 }
 
-/* Header */
-.page-header {
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px 32px;
+.list-page-main-content {
+    width: 95%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.list-page-header {
+    background: linear-gradient(145deg, #ffffff, #f9f9f9);
+    border-radius: 20px;
+    padding: 20px 28px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     transform-origin: top;
-    animation: slideDown 0.4s ease-out;
+    animation: slideDown 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    position: relative;
 }
 
-.header-content {
+.list-page-header-content {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
 }
 
-.header-icon {
+.list-page-header-icon {
     line-height: 0;
+    background: linear-gradient(135deg, #000000, #333333);
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.header-icon svg {
-    font-size: 64px;
-    color: #000 !important;
-    fill: #000 !important;
+.list-page-header-icon:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-.header-text h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #1a1a1a;
+.list-page-header-text h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
     margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-.data-grid-wrapper {
+.list-page-data-grid-wrapper {
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
-    overflow: hidden;
     animation: slideUp 0.4s ease-out;
-    height: calc(100vh - 280px);
+    overflow: auto;
+    height: 600px;
     min-height: 400px;
+    max-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-
 .MuiDataGrid-toolbarContainer {
-    padding: 16px 24px !important;
+    padding: 12px 16px !important;
     background: #fff !important;
     border-bottom: 1px solid #f0f0f0 !important;
     display: flex !important;
@@ -133,159 +145,135 @@ html, body {
     border-color: #000 !important;
 }
 
-
 .MuiDataGrid-root {
     border: none !important;
-}
-
-.MuiDataGrid-columnHeaders {
-    background: #fff !important;
-    border-bottom: 1px solid #f0f0f0 !important;
-}
-
-.MuiDataGrid-columnHeader {
-    padding: 16px 24px !important;
+    width: 100% !important;
+    height: 100% !important;
+    font-size: 14px !important;
+    overflow: hidden !important;
 }
 
 .MuiDataGrid-columnHeaderTitle {
     font-weight: 600 !important;
     color: #1a1a1a !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
 }
 
 .MuiDataGrid-cell {
-    padding: 16px 24px !important;
+    padding: 14px 16px !important;
     border-bottom: 1px solid #f0f0f0 !important;
     border-right: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
 }
 
-.MuiDataGrid-row {
-    transition: background-color 0.2s ease !important;
+.MuiDataGrid-cell:focus, 
+.MuiDataGrid-cell:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.MuiDataGrid-columnHeader {
+    outline: none !important;
+}
+
+.MuiDataGrid-columnHeader:focus,
+.MuiDataGrid-columnHeader:focus-within {
+    outline: none !important;
+}
+
+.MuiDataGrid-root .MuiDataGrid-row.Mui-selected {
+    background-color: rgba(245, 245, 245, 0.3) !important;
+}
+
+.MuiDataGrid-root .MuiDataGrid-row.Mui-selected:hover {
+    background-color: rgba(245, 245, 245, 0.5) !important;
 }
 
 .MuiDataGrid-row:hover {
     background-color: #f8f9fa !important;
 }
 
-.MuiDataGrid-columnSeparator {
-    display: none !important;
-}
-
-
-.status-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    transition: transform 0.2s ease;
-}
-
-.status-cell:hover {
-    transform: translateY(-1px);
-}
-
-.status-cell.active {
-    background: #ecfdf5;
-    color: #059669;
-}
-
-.status-cell.deactivated {
-    background: #fef2f2;
-    color: #dc2626;
-}
-
-.status-cell .status-icon {
-    font-size: 16px;
-}
-
-
-.add-button-container {
+.list-page-add-button-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 24px auto 0;
+    padding: 0;
+    flex-shrink: 0;
     width: 100%;
-    margin: 32px auto;
-    padding: 0 16px;
+    box-sizing: border-box;
 }
 
-.add-button {
-    background: linear-gradient(45deg, #000000, #333333) !important;
-    color: #fff !important;
-    padding: 12px 32px !important;
-    border-radius: 12px !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    text-transform: none !important;
-    min-width: fit-content !important;
-    width: auto !important;
-    margin: 0 auto !important;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+.list-page-add-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: linear-gradient(145deg, #333 0%, #222 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-    text-decoration: none !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
 }
 
-.add-button::before {
-    content: '';
+.list-page-add-button::before {
+    content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.add-button:hover {
-    transform: translateY(-4px) scale(1.02);
-    background: linear-gradient(45deg, #1a1a1a, #404040) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
-}
-
-.add-button:hover::before {
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.add-button:active {
-    transform: translateY(-2px) scale(0.98);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.add-button .MuiButton-startIcon {
-    margin-right: 0 !important;
-    transition: transform 0.3s ease !important;
-}
-
-.add-button:hover .MuiButton-startIcon {
-    transform: scale(1.1);
-}
-
-.add-button span {
-    position: relative;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    transition: all 0.5s ease;
     z-index: 1;
-    white-space: nowrap;
 }
 
-
-.MuiDataGrid-footerContainer {
-    border-top: 1px solid #f0f0f0 !important;
-    background: #fff !important;
-    padding: 12px 24px !important;
+.list-page-add-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, #222 0%, #111 100%);
 }
 
-.MuiTablePagination-root {
-    color: #1a1a1a !important;
+.list-page-add-button:hover::before {
+    left: 100%;
 }
 
+.list-page-add-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.list-page-add-button svg {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+    z-index: 2;
+}
+
+.list-page-add-button:hover svg {
+    transform: rotate(90deg);
+}
+
+.list-page-add-button span {
+    z-index: 2;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
 
 @keyframes fadeIn {
     from {
@@ -318,68 +306,10 @@ html, body {
     }
 }
 
-
-.MuiDataGrid-panel {
-    background: #fff !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-    border: 1px solid #e0e0e0 !important;
-}
-
-.MuiDataGrid-filterForm {
-    padding: 16px !important;
-}
-
-.MuiDataGrid-filterForm .MuiFormControl-root {
-    margin: 0 !important;
-}
-
-.MuiDataGrid-filterForm .MuiInputBase-root {
-    background: #fff !important;
-    border-radius: 4px !important;
-}
-
-
-.MuiDataGrid-menuList {
-    background: #fff !important;
-    padding: 8px !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-    border: 1px solid #e0e0e0 !important;
-}
-
-.MuiDataGrid-menuList .MuiMenuItem-root {
-    padding: 8px 16px !important;
-    border-radius: 4px !important;
-    margin: 2px 0 !important;
-    font-size: 14px !important;
-    color: #000 !important;
-}
-
-.MuiDataGrid-menuList .MuiMenuItem-root:hover {
-    background-color: #f5f5f5 !important;
-}
-
-
-.MuiDataGrid-root .MuiDataGrid-cell:first-child {
-    padding: 12px 16px !important;
-    justify-content: center !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-}
-
-.action-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+.list-page-action-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     display: flex;
@@ -388,42 +318,30 @@ html, body {
     transition: all 0.3s ease;
     background: #f5f5f5;
     color: #666;
+    margin: 0 auto;
 }
 
-.action-button.edit {
+.list-page-action-button.edit {
     background: #f5f5f5;
     color: #666;
 }
 
-.action-button.edit:hover {
+.list-page-action-button.edit:hover {
     background: #e0e0e0;
     color: #333;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.action-button.delete {
-    background: #f5f5f5;
-    color: #666;
-}
-
-.action-button.delete:hover {
-    background: #ffebee;
-    color: #d32f2f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(211, 47, 47, 0.1);
-}
-
-.action-button svg {
-    width: 20px;
-    height: 20px;
+.list-page-action-button svg {
+    width: 18px;
+    height: 18px;
     transition: transform 0.3s ease;
 }
 
-.action-button:hover svg {
+.list-page-action-button:hover svg {
     transform: scale(1.1);
 }
-
 
 .MuiDialog-paper {
     border-radius: 24px !important;
@@ -437,150 +355,105 @@ html, body {
     position: relative !important;
 }
 
-.MuiDialog-paper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.1) 50%,
-        rgba(0, 0, 0, 0) 100%
-    );
-}
-
-.MuiDialogTitle-root {
-    font-size: 24px !important;
-    font-weight: 600 !important;
-    color: #1a1a1a !important;
-    padding: 28px 36px !important;
-    background: #fff !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 16px !important;
-    position: relative !important;
-}
-
-.MuiDialogTitle-root::before {
+.MuiDataGrid-selectedRowCount {
     display: none !important;
 }
 
-.MuiDialogContent-root {
-    font-size: 15px !important;
+.MuiTablePagination-root {
     color: #666 !important;
-    padding: 36px !important;
-    line-height: 1.6 !important;
-    background: #fff !important;
-    position: relative !important;
 }
 
-.MuiDialogContent-root::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 36px;
-    right: 36px;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.06) 50%,
-        rgba(0, 0, 0, 0) 100%
-    );
-}
-
-.MuiDialogContent-root p {
-    margin: 0 !important;
-}
-
-.MuiDialogContent-root p:first-child {
-    font-size: 18px !important;
-    color: #1a1a1a !important;
-    font-weight: 500 !important;
-    margin-bottom: 16px !important;
-    line-height: 1.4 !important;
-}
-
-.MuiDialogContent-root p:last-child {
-    color: #666 !important;
-    font-size: 14px !important;
-    opacity: 0.8 !important;
-}
-
-.MuiDialogActions-root {
-    padding: 24px 36px !important;
-    gap: 16px !important;
-    background: #fff !important;
-    position: relative !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-}
-
-.MuiDialogActions-root::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 36px;
-    right: 36px;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.06) 50%,
-        rgba(0, 0, 0, 0) 100%
-    );
-}
-
-.MuiDialogActions-root .MuiButton-root {
-    padding: 12px 28px !important;
+.MuiDataGrid-panel {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
     border-radius: 12px !important;
-    font-weight: 500 !important;
-    text-transform: none !important;
-    font-size: 15px !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    min-width: 120px !important;
-    position: relative !important;
     overflow: hidden !important;
+}
+
+.MuiDataGrid-filterForm {
+    padding: 12px !important;
+}
+
+.MuiDataGrid-filterForm > div {
+    position: relative !important;
+    padding-right: 32px !important;
+    margin-bottom: 8px !important;
+}
+
+.MuiDataGrid-filterForm button[aria-label="Delete"] {
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    padding: 4px !important;
+    min-width: 32px !important;
+    width: 32px !important;
+    height: 32px !important;
     margin: 0 !important;
 }
 
-.MuiDialogActions-root .MuiButton-outlined {
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    color: #666 !important;
-    background: #fff !important;
+.MuiDataGrid-filterForm button[aria-label="Delete"] svg {
+    font-size: 18px !important;
 }
 
-.MuiDialogActions-root .MuiButton-outlined:hover {
-    border-color: #000 !important;
-    color: #000 !important;
-    background: #fff !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+.MuiDataGrid-filterForm .MuiSelect-select,
+.MuiDataGrid-filterForm .MuiInputBase-input {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
 }
 
-.MuiDialogActions-root .MuiButton-contained {
-    background: #000 !important;
-    color: white !important;
-    box-shadow: none !important;
+.MuiDataGrid-filterForm .MuiInputLabel-root {
+    font-size: 13px !important;
+    transform: translate(12px, 10px) scale(1) !important;
 }
 
-.MuiDialogActions-root .MuiButton-contained::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+.MuiDataGrid-filterForm .MuiInputLabel-root.MuiInputLabel-shrink {
+    transform: translate(12px, -6px) scale(0.75) !important;
 }
 
-.MuiDialogActions-root .MuiButton-contained:hover {
-    background: #1a1a1a !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-} 
+.MuiDataGrid-panelFooter {
+    padding: 8px 12px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+}
+
+.MuiDataGrid-panelFooter button {
+    min-width: unset !important;
+    padding: 5px 12px !important;
+    font-size: 13px !important;
+}
+
+.MuiDataGrid-filterFormLogicOperatorInput {
+    margin-bottom: 12px !important;
+}
+
+.MuiDataGrid-filterFormAddFilter {
+    margin-top: 8px !important;
+    align-self: flex-start !important;
+}
+
+.MuiInputLabel-root {
+    font-size: 13px !important;
+}
+
+.css-kzyyzb-MuiDataGrid-filterForm {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.MuiDataGrid-filterFormDeleteIcon {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    min-width: unset !important;
+    width: 28px !important;
+    height: 28px !important;
+}
+
+.css-15i2x3e-MuiDataGrid-filterForm {
+    position: relative !important;
+    padding-top: 8px !important;
+}

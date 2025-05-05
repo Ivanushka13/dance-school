@@ -1,195 +1,496 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from "react";
 import './Profile.css';
-
-
 import SideBar from '../../Components/SideBar/SideBar';
 import NavBar from '../../Components/NavBar/NavBar';
-
-
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
-import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
+import PersonIcon from '@mui/icons-material/Person';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CloseIcon from '@mui/icons-material/Close';
+import SecurityIcon from '@mui/icons-material/Security';
+import { MdError } from 'react-icons/md';
+import {apiRequest} from "../../util/apiService";
+import {useDispatch, useSelector} from "react-redux";
+import {updateSessionField} from "../../redux/sessionSlice";
 
 const Profile = () => {
-    const [userData, setUserData] = useState({
-        fullName: 'Иван Иванов',
-        email: 'ivan.ivanov@elcentro.com',
-        phone: '+7 (999) 123-45-67'
+
+  const session = useSelector(state => state.session);
+  const user = useSelector(state => state.session.user);
+
+  const dispatch = useDispatch();
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    first_name: user.first_name,
+    last_name: user.last_name,
+    middle_name: user.middle_name,
+    email: user.email,
+    phone_number: user.phone_number,
+    newPassword: '',
+    confirmPassword: '',
+    oldPassword: ''
+  });
+
+  useEffect(() => {
+    setFormData({
+      ...user,
+      newPassword: '',
+      confirmPassword: '',
+      oldPassword: ''
+    });
+  }, [user]);
+
+  const [errors, setErrors] = useState({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    email: '',
+    phone: '',
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
 
-    const [isEditing, setIsEditing] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const [passwords, setPasswords] = useState({
-        newPassword: '',
-        confirmPassword: ''
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      });
+    }
+  };
+
+  const validateProfileForm = () => {
+    const newErrors = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email обязателен для заполнения';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Введите корректный email';
+    }
+
+    if (!formData.phone_number.trim()) {
+      newErrors.phone = 'Номер телефона обязателен для заполнения';
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      ...newErrors
+    }));
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validatePasswordForm = () => {
+    const newErrors = {};
+
+    if (!formData.oldPassword) {
+      newErrors.oldPassword = 'Введите текущий пароль';
+    }
+
+    if (!formData.newPassword) {
+      newErrors.newPassword = 'Введите новый пароль';
+    } else if (formData.newPassword.length < 8) {
+      newErrors.newPassword = 'Пароль должен быть не менее 8 символов';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Подтвердите новый пароль';
+    } else if (formData.newPassword !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Пароли не совпадают';
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      ...newErrors
+    }));
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+
+    if (validateProfileForm()) {
+      setIsLoading(true);
+
+      try {
+      const user_update = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        middle_name: formData.middle_name,
+        ...(formData.email !== user.email && {email: formData.email}),
+        ...(formData.phone_number !== user.phone_number && {phone_number: formData.phone_number}),
+      };
+
+      const response_data = await apiRequest({
+        method: 'patch',
+        url: `/admins/${session.id}`,
+          data: user_update
+      });
+
+      dispatch(updateSessionField(response_data));
+
+      setIsEditing(false);
+      } catch (error) {
+        console.error(`Ошибка во время изменения данных: ${error}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault();
+
+    if (validatePasswordForm()) {
+      setIsLoading(true);
+
+      try {
+        await apiRequest({
+          method: 'patch',
+          url: `/admins/${session.id}`,
+          data: {
+            old_password: formData.oldPassword,
+            new_password: formData.newPassword
+          }
+        });
+
+        setFormData({
+          ...formData,
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+
+      } catch (error) {
+        console.error(`Ошибка при изменении пароля: ${error}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+
+    setFormData({
+      ...user,
+      newPassword: '',
+      confirmPassword: '',
+      oldPassword: ''
     });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setUserData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+    setErrors({
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      email: '',
+      phone: '',
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+  };
 
-    const handlePasswordChange = (e) => {
-        const { name, value } = e.target;
-        setPasswords(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-
-    const handleSaveProfile = () => {
-        // Здесь будет логика сохранения данных профиля
-        setIsEditing(false);
-    };
-
-
-    const handleSavePassword = () => {
-        // Здесь будет логика сохранения нового пароля
-        setPasswords({ newPassword: '', confirmPassword: '' });
-    };
-
-
-    const isPasswordsMatch = passwords.newPassword && passwords.confirmPassword && 
-                           passwords.newPassword === passwords.confirmPassword;
-
-    return (
-        <div className="list">
-            <SideBar />
-            <div className="list-container">
-                <NavBar />
-                <div className="profile-page">
-                    <div className="profile-header">
-                        <div className="header-content">
-                            <div className="header-icon">
-                                <PersonRoundedIcon />
-                            </div>
-                            <div className="header-text">
-                                <h1>Профиль</h1>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="profile-content">
-                        <div className="profile-section">
-                            <h2>Личные данные</h2>
-                            <div className="form-group">
-                                <label>ФИО</label>
-                                <input
-                                    type="text"
-                                    name="fullName"
-                                    value={userData.fullName}
-                                    onChange={handleChange}
-                                    disabled={!isEditing}
-                                    placeholder="Введите ФИО"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={userData.email}
-                                    onChange={handleChange}
-                                    disabled={!isEditing}
-                                    placeholder="Введите email"
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label>Телефон</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={userData.phone}
-                                    onChange={handleChange}
-                                    disabled={!isEditing}
-                                    placeholder="Введите номер телефона"
-                                />
-                            </div>
-
-                            {!isEditing ? (
-                                <button className="edit-button" onClick={() => setIsEditing(true)}>
-                                    <EditRoundedIcon />
-                                    <span>Редактировать</span>
-                                </button>
-                            ) : (
-                                <button className="save-button" onClick={handleSaveProfile}>
-                                    <SaveRoundedIcon />
-                                    <span>Сохранить изменения</span>
-                                </button>
-                            )}
-                        </div>
-
-                        {isEditing && (
-                            <div className="profile-section">
-                                <h2>Изменение пароля</h2>
-                                <div className="form-group">
-                                    <label>Новый пароль</label>
-                                    <div className="password-input">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            name="newPassword"
-                                            value={passwords.newPassword}
-                                            onChange={handlePasswordChange}
-                                            placeholder="Введите новый пароль"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="visibility-toggle"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Подтверждение пароля</label>
-                                    <div className="password-input">
-                                        <input
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            name="confirmPassword"
-                                            value={passwords.confirmPassword}
-                                            onChange={handlePasswordChange}
-                                            placeholder="Подтвердите новый пароль"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="visibility-toggle"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        >
-                                            {showConfirmPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <button 
-                                    className="save-password-button"
-                                    onClick={handleSavePassword}
-                                    disabled={!isPasswordsMatch}
-                                >
-                                    <SaveRoundedIcon />
-                                    <span>Сохранить пароль</span>
-                                </button>
-                            </div>
-                        )}
-                    </div>
+  return (
+    <div className="profile-page">
+      <SideBar/>
+      <div className="profile-container">
+        <NavBar/>
+        <div className="profile-content">
+          <div className="profile-main-content">
+            <div className="profile-header">
+              <div className="profile-header-content">
+                <div className="profile-header-icon">
+                  <PersonIcon/>
                 </div>
+                <div className="profile-header-text">
+                  <h1>Профиль</h1>
+                </div>
+              </div>
             </div>
+
+            <div className="profile-cards-container">
+              <div className="profile-card">
+                <div className="profile-card-header">
+                  <h2>Личная информация</h2>
+                  <div className="profile-header-controls">
+                  {!isEditing && (
+                    <button
+                      className="edit-button"
+                      onClick={() => setIsEditing(true)}
+                        disabled={isLoading}
+                    >
+                      <EditIcon/>
+                      <span>Редактировать</span>
+                    </button>
+                  )}
+                  </div>
+                </div>
+
+                <div className="profile-form">
+                  <div className="profile-form-group">
+                    <label htmlFor="firstName">Имя</label>
+                    <div className={`profile-input-wrapper ${errors.firstName ? 'error' : ''}`}>
+                      <input
+                        type="text"
+                        id="firstName"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleChange}
+                        disabled={!isEditing || isLoading}
+                        placeholder="Введите имя"
+                      />
+                    </div>
+                    {errors.firstName &&
+                      <div className="profile-error-message">
+                        <MdError />
+                        <span>{errors.firstName}</span>
+                      </div>}
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label htmlFor="lastName">Фамилия</label>
+                    <div className={`profile-input-wrapper ${errors.lastName ? 'error' : ''}`}>
+                      <input
+                        type="text"
+                        id="lastName"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleChange}
+                        disabled={!isEditing || isLoading}
+                        placeholder="Введите фамилию"
+                      />
+                    </div>
+                    {errors.lastName &&
+                      <div className="profile-error-message">
+                        <MdError />
+                        <span>{errors.lastName}</span>
+                      </div>}
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label htmlFor="middleName">Отчество</label>
+                    <div className={`profile-input-wrapper ${errors.middleName ? 'error' : ''}`}>
+                      <input
+                        type="text"
+                        id="middleName"
+                        name="middle_name"
+                        value={formData.middle_name || ''}
+                        onChange={handleChange}
+                        disabled={!isEditing || isLoading}
+                        placeholder="Введите отчество"
+                      />
+                    </div>
+                    {errors.middleName &&
+                      <div className="profile-error-message">
+                        <MdError />
+                        <span>{errors.middleName}</span>
+                      </div>}
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label htmlFor="email">Email</label>
+                    <div className={`profile-input-wrapper ${errors.email ? 'error' : ''}`}>
+                      <EmailIcon className="profile-field-icon"/>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email || ''}
+                        onChange={handleChange}
+                        disabled={!isEditing || isLoading}
+                        placeholder="Введите email"
+                      />
+                    </div>
+                    {errors.email && 
+                      <div className="profile-error-message">
+                        <MdError />
+                        <span>{errors.email}</span>
+                      </div>}
+                  </div>
+
+                  <div className="profile-form-group">
+                    <label htmlFor="phone">Номер телефона</label>
+                    <div className={`profile-input-wrapper ${errors.phone ? 'error' : ''}`}>
+                      <PhoneIcon className="profile-field-icon"/>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone_number"
+                        value={formData.phone_number || ''}
+                        onChange={handleChange}
+                        disabled={!isEditing || isLoading}
+                        placeholder="Введите номер телефона"
+                      />
+                    </div>
+                    {errors.phone && 
+                      <div className="profile-error-message">
+                        <MdError />
+                        <span>{errors.phone}</span>
+                      </div>}
+                  </div>
+                </div>
+
+                {isEditing && (
+                  <div className="profile-actions">
+                    <button
+                      className="cancel-button"
+                      onClick={handleCancelEdit}
+                      disabled={isLoading}
+                    >
+                      <CloseIcon/>
+                      <span>Отмена</span>
+                    </button>
+                    <button
+                      className="save-button"
+                      onClick={handleSaveProfile}
+                      disabled={isLoading}
+                    >
+                      <SaveIcon/>
+                      <span>{isLoading ? 'Сохранение...' : 'Сохранить изменения'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isEditing && (
+                <div className="profile-card">
+                  <div className="profile-card-header">
+                    <h2>Изменение пароля</h2>
+                    <div className="security-icon">
+                      <SecurityIcon/>
+                    </div>
+                  </div>
+
+                  <div className="profile-form">
+                    <div className="profile-form-group">
+                      <label htmlFor="oldPassword">Текущий пароль</label>
+                      <div
+                        className={`profile-input-wrapper ${errors.oldPassword ? 'error' : ''}`}>
+                        <LockIcon className="profile-field-icon"/>
+                        <input
+                          type={showOldPassword ? "text" : "password"}
+                          id="oldPassword"
+                          name="oldPassword"
+                          value={formData.oldPassword}
+                          onChange={handleChange}
+                          placeholder="Введите текущий пароль"
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="button"
+                          className="visibility-toggle"
+                          onClick={() => setShowOldPassword(!showOldPassword)}
+                          disabled={isLoading}
+                        >
+                          {showOldPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                        </button>
+                      </div>
+                      {errors.oldPassword &&
+                        <div className="profile-error-message">
+                          <MdError />
+                          <span>{errors.oldPassword}</span>
+                        </div>}
+                    </div>
+
+                    <div className="profile-form-group">
+                      <label htmlFor="newPassword">Новый пароль</label>
+                      <div
+                        className={`profile-input-wrapper ${errors.newPassword ? 'error' : ''}`}>
+                        <LockIcon className="profile-field-icon"/>
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          id="newPassword"
+                          name="newPassword"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          placeholder="Введите новый пароль"
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="button"
+                          className="visibility-toggle"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          disabled={isLoading}
+                        >
+                          {showNewPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                        </button>
+                      </div>
+                      {errors.newPassword &&
+                        <div className="profile-error-message">
+                          <MdError />
+                          <span>{errors.newPassword}</span>
+                        </div>}
+                    </div>
+
+                    <div className="profile-form-group">
+                      <label htmlFor="confirmPassword">Подтверждение пароля</label>
+                      <div
+                        className={`profile-input-wrapper ${errors.confirmPassword ? 'error' : ''}`}>
+                        <LockIcon className="profile-field-icon"/>
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          placeholder="Подтвердите новый пароль"
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="button"
+                          className="visibility-toggle"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          disabled={isLoading}
+                        >
+                          {showConfirmPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                        </button>
+                      </div>
+                      {errors.confirmPassword &&
+                        <div className="profile-error-message">
+                          <MdError />
+                          <span>{errors.confirmPassword}</span>
+                        </div>}
+                    </div>
+                  </div>
+
+                  <div className="profile-actions">
+                    <button
+                      className="save-button full-width"
+                      onClick={handleSavePassword}
+                      disabled={isLoading}
+                    >
+                      <LockIcon/>
+                      <span>{isLoading ? 'Обновление...' : 'Обновить пароль'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
-export default Profile; 
+export default Profile;

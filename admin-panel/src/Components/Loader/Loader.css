@@ -1,0 +1,80 @@
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.loader-spinner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #1a1a1a;
+  animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+.spinner-circle.inner {
+  width: 70%;
+  height: 70%;
+  border-top-color: #555;
+  border-right-color: #555;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite reverse;
+}
+
+
+.loader-size-small {
+  width: 30px;
+  height: 30px;
+}
+
+.loader-size-medium {
+  width: 50px;
+  height: 50px;
+}
+
+.loader-size-large {
+  width: 80px;
+  height: 80px;
+}
+
+.loader-text {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 500;
+  text-align: center;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.fullscreen-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+} 

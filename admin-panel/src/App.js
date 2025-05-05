@@ -1,59 +1,66 @@
-import {BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./Pages/Home/Home";
-import LoginPage from "./Pages/Login/LoginPage";
-import EventsList from "./Pages/Lists/EventsList/EventsList"
-import StudentsList from "./Pages/Lists/StudentsList/StudentsList";
-import GroupsList from "./Pages/Lists/GroupsList/GroupsList";
 import React from "react";
-import ClassroomsList from "./Pages/Lists/ClassroomsList/ClassroomsList";
-import TeachersList from "./Pages/Lists/TeachersList/TeachersList";
-import {LessonRequestsList} from "./Pages/Lists/LessonRequestsList/LessonRequestsList";
+import {BrowserRouter as Router, Route, Routes, Navigate} from "react-router-dom";
+import Admins from "./Pages/Lists/Admins";
+import Students from "./Pages/Lists/Students";
+import Home from "./Pages/Home/Home";
+import LoginPage from "./Pages/Login/Login";
+import EventsList from "./Pages/Lists/Events"
+import GroupsList from "./Pages/Lists/Groups";
+import ClassroomsList from "./Pages/Lists/Classrooms";
+import TeachersList from "./Pages/Lists//Teachers";
 import Profile from "./Pages/Profile/Profile";
-import AdminsList from "./Pages/Lists/AdminsList/AdminsList";
-import TeacherGroupsList from "./Pages/Lists/TeacherGroupsList/TeacherGroupsList";
-import StudentGroupsList from "./Pages/Lists/StudentGroupsList/StudentGroupsList";
-import LessonsList from "./Pages/Lists/LessonsList/LessonsList";
-import LevelsList from "./Pages/Lists/LevelsList/LevelsList";
-import EventTypesList from "./Pages/Lists/EventTypesList/EventTypesList";
-import AttendancesList from "./Pages/Lists/AttendancesList/AttendancesList";
-import SubscriptionsList from "./Pages/Lists/SubscriptionsList/SubscriptionsList";
-import SubscriptionTypesList from "./Pages/Lists/SubscriptionTypesList/SubscriptionTypesList";
-import PaymentsList from "./Pages/Lists/PaymentsList/PaymentsList";
-import PaymentTypesList from "./Pages/Lists/PaymentTypesList/PaymentTypesList";
+import LessonsList from "./Pages/Lists/Lessons";
+import LevelsList from "./Pages/Lists/Levels";
+import EventTypesList from "./Pages/Lists/EventTypes";
+import SubscriptionsList from "./Pages/Lists/Subscriptions";
+import PaymentsList from "./Pages/Lists/Payments";
+import PaymentTypesList from "./Pages/Lists/PaymentTypes";
 import EditPage from './Pages/EditPage/EditPage';
+import SlotsList from "./Pages/Lists/Slots";
+import DanceStylesList from "./Pages/Lists/DanceStyles";
+import SubscriptionTemplatesList from "./Pages/Lists/SubscriptionTemplates";
+import LessonTypes from "./Pages/Lists/LessonTypes";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {ru} from 'date-fns/locale';
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import ScrollToTop from "./util/ScrollToTop";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+      <Router future={{v7_startTransition: true, v7_relativeSplatPath: true}}>
+        <ScrollToTop/>
+        <Routes>
+          <Route path="/login" element={<LoginPage/>}/>
 
-    return (
-        <div className="App">
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/home" element={<Home/>}/>
-                    <Route path="/login" element={<LoginPage/>}/>
-                    <Route path="/" element={<LoginPage/>}/>
-                    <Route path="/events" element={<EventsList/>}/>
-                    <Route path="/students" element={<StudentsList/>}/>
-                    <Route path="/teachers" element={<TeachersList/>}/>
-                    <Route path="/groups" element={<GroupsList/>}/>
-                    <Route path="/lessonRequests" element={<LessonRequestsList/>}/>
-                    <Route path="/classrooms" element={<ClassroomsList/>}/>
-                    <Route path="/profile" element={<Profile/>}/>
-                    <Route path="/admins" element={<AdminsList/>}/>
-                    <Route path="/teacher-groups" element={<TeacherGroupsList/>}/>
-                    <Route path="/student-groups" element={<StudentGroupsList/>}/>
-                    <Route path="/lessons" element={<LessonsList/>}/>
-                    <Route path="/levels" element={<LevelsList/>}/>
-                    <Route path="/event-types" element={<EventTypesList/>}/>
-                    <Route path="/attendances" element={<AttendancesList/>}/>
-                    <Route path="/subscriptions" element={<SubscriptionsList/>}/>
-                    <Route path="/subscription-types" element={<SubscriptionTypesList/>}/>
-                    <Route path="/payments" element={<PaymentsList/>}/>
-                    <Route path="/payment-types" element={<PaymentTypesList/>}/>
-                    <Route path="/edit" element={<EditPage />} />
-                </Routes>
-            </BrowserRouter>
-        </div>
-    )
+          <Route element={<ProtectedRoute/>}>
+            <Route path="/home" element={<Home/>}/>
+            <Route path="/events" element={<EventsList/>}/>
+            <Route path="/students" element={<Students/>}/>
+            <Route path="/teachers" element={<TeachersList/>}/>
+            <Route path="/groups" element={<GroupsList/>}/>
+            <Route path="/classrooms" element={<ClassroomsList/>}/>
+            <Route path="/profile" element={<Profile/>}/>
+            <Route path="/admins" element={<Admins/>}/>
+            <Route path="/lessons" element={<LessonsList/>}/>
+            <Route path="/lesson-types" element={<LessonTypes/>}/>
+            <Route path="/levels" element={<LevelsList/>}/>
+            <Route path="/event-types" element={<EventTypesList/>}/>
+            <Route path="/subscriptions" element={<SubscriptionsList/>}/>
+            <Route path="/subscription-templates" element={<SubscriptionTemplatesList/>}/>
+            <Route path="/payments" element={<PaymentsList/>}/>
+            <Route path="/payment-types" element={<PaymentTypesList/>}/>
+            <Route path="/edit" element={<EditPage/>}/>
+            <Route path="/slots" element={<SlotsList/>}/>
+            <Route path="/dance-styles" element={<DanceStylesList/>}/>
+          </Route>
+
+          <Route path="/" element={<Navigate to='/login' replace/>}/>
+        </Routes>
+      </Router>
+    </LocalizationProvider>
+  )
 }
 
 export default App;

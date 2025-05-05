@@ -2,26 +2,27 @@ import React, { useState } from 'react';
 import SideBar from '../SideBar/SideBar';
 import NavBar from '../NavBar/NavBar';
 import './AddPage.css';
-import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
 import { 
     TextField, 
     FormControl, 
     InputLabel, 
     Select, 
     MenuItem, 
-    Checkbox, 
     FormControlLabel, 
     Switch,
     RadioGroup, 
     Radio, 
     FormLabel, 
-    FormGroup,
-    InputAdornment,
     Button,
     Box,
     Paper,
     Typography,
+    Container,
+    IconButton,
+    Grid,
+    Chip,
     Divider
 } from '@mui/material';
 
@@ -61,21 +62,87 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
         }
     };
 
-
     const renderField = (field) => {
+        const commonProps = {
+            fullWidth: true,
+            margin: "normal",
+            size: "medium",
+            className: "add-page-text-field",
+            required: field.required,
+            error: !!errors[field.name],
+            helperText: errors[field.name],
+            label: field.label,
+            value: formData[field.name] || '',
+            onChange: (e) => handleChange(field.name, e.target.value),
+            sx: {
+                '& .MuiInputBase-root': {
+                    borderRadius: '14px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                    transition: 'all 0.3s ease'
+                },
+                '& .MuiInputLabel-root': {
+                    color: 'text.primary'
+                },
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                        borderColor: 'rgba(0, 0, 0, 0.15)',
+                        transition: 'all 0.3s ease'
+                    },
+                    '&:hover fieldset': {
+                        borderColor: 'rgba(0, 0, 0, 0.7)',
+                    },
+                    '&.Mui-focused fieldset': {
+                        borderColor: '#000',
+                        borderWidth: '1.5px'
+                    }
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#000'
+                }
+            }
+        };
+        
         switch (field.type) {
             case 'switch':
                 return (
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={!!formData[field.name]}
-                                onChange={(e) => handleChange(field.name, e.target.checked)}
-                                color="primary"
-                            />
-                        }
-                        label={field.label}
-                    />
+                    <Paper 
+                        elevation={0} 
+                        className="add-page-field-paper"
+                        sx={{ 
+                            bgcolor: 'rgba(0, 0, 0, 0.02)',
+                            p: 2,
+                            borderRadius: '14px',
+                            border: '1px solid',
+                            borderColor: 'rgba(0, 0, 0, 0.08)',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    className="add-page-switch"
+                                    checked={!!formData[field.name]}
+                                    onChange={(e) => handleChange(field.name, e.target.checked)}
+                                    sx={{
+                                        '& .MuiSwitch-switchBase.Mui-checked': {
+                                            color: '#000',
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                                            },
+                                        },
+                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                            backgroundColor: '#000',
+                                        },
+                                    }}
+                                />
+                            }
+                            label={
+                                <Typography variant="body1" color="text.primary" fontWeight={500}>
+                                    {field.label}
+                                </Typography>
+                            }
+                        />
+                    </Paper>
                 );
                 
             case 'select':
@@ -85,6 +152,9 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
                         variant="outlined" 
                         error={!!errors[field.name]}
                         required={field.required}
+                        className="add-page-text-field"
+                        margin="normal"
+                        sx={commonProps.sx}
                     >
                         <InputLabel>{field.label}</InputLabel>
                         <Select
@@ -101,39 +171,25 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
                                 </MenuItem>
                             ))}
                         </Select>
-                        {errors[field.name] && <div className="error-message">{errors[field.name]}</div>}
+                        {errors[field.name] && <div className="add-page-error-message">{errors[field.name]}</div>}
                     </FormControl>
                 );
                 
             case 'date':
                 return (
                     <TextField
-                        fullWidth
-                        label={field.label}
+                        {...commonProps}
                         type="date"
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        variant="outlined"
                         InputLabelProps={{ shrink: true }}
-                        error={!!errors[field.name]}
-                        helperText={errors[field.name]}
-                        required={field.required}
                     />
                 );
                 
             case 'time':
                 return (
                     <TextField
-                        fullWidth
-                        label={field.label}
+                        {...commonProps}
                         type="time"
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        variant="outlined"
                         InputLabelProps={{ shrink: true }}
-                        error={!!errors[field.name]}
-                        helperText={errors[field.name]}
-                        required={field.required}
                     />
                 );
                 
@@ -141,23 +197,18 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
             case 'datetime-local':
                 return (
                     <TextField
-                        fullWidth
-                        label={field.label}
+                        {...commonProps}
                         type="datetime-local"
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        variant="outlined"
                         InputLabelProps={{ shrink: true }}
-                        error={!!errors[field.name]}
-                        helperText={errors[field.name]}
-                        required={field.required}
                     />
                 );
                 
             case 'radio':
                 return (
-                    <FormControl component="fieldset" error={!!errors[field.name]}>
-                        <FormLabel component="legend">{field.label}{field.required && '*'}</FormLabel>
+                    <FormControl component="fieldset" error={!!errors[field.name]} className="add-page-radio-field">
+                        <FormLabel component="legend" sx={{ fontWeight: 500, color: 'rgba(0, 0, 0, 0.7)' }}>
+                            {field.label}{field.required && '*'}
+                        </FormLabel>
                         <RadioGroup
                             name={field.name}
                             value={formData[field.name] || ''}
@@ -168,63 +219,79 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
                                 <FormControlLabel
                                     key={option.value}
                                     value={option.value}
-                                    control={<Radio />}
+                                    control={
+                                        <Radio 
+                                            className="add-page-radio"
+                                            sx={{
+                                                '&.Mui-checked': {
+                                                    color: '#000',
+                                                }
+                                            }}
+                                        />
+                                    }
                                     label={option.label}
                                 />
                             ))}
                         </RadioGroup>
-                        {errors[field.name] && <div className="error-message">{errors[field.name]}</div>}
+                        {errors[field.name] && <div className="add-page-error-message">{errors[field.name]}</div>}
                     </FormControl>
                 );
                 
             case 'checkbox':
                 return (
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={!!formData[field.name]}
-                                onChange={(e) => handleChange(field.name, e.target.checked)}
-                                color="primary"
-                            />
-                        }
-                        label={field.label}
-                    />
+                    <Paper 
+                        elevation={0} 
+                        className="add-page-field-paper"
+                        sx={{ 
+                            bgcolor: 'rgba(0, 0, 0, 0.02)',
+                            p: 2,
+                            borderRadius: '14px',
+                            border: '1px solid',
+                            borderColor: 'rgba(0, 0, 0, 0.08)',
+                            transition: 'all 0.3s ease'
+                        }}
+                    >
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    className="add-page-switch"
+                                    checked={!!formData[field.name]}
+                                    onChange={(e) => handleChange(field.name, e.target.checked)}
+                                    sx={{
+                                        '& .MuiSwitch-switchBase.Mui-checked': {
+                                            color: '#000',
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                                            },
+                                        },
+                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                            backgroundColor: '#000',
+                                        },
+                                    }}
+                                />
+                            }
+                            label={
+                                <Typography variant="body1" color="text.primary" fontWeight={500}>
+                                    {field.label}
+                                </Typography>
+                            }
+                        />
+                    </Paper>
                 );
                 
             case 'number':
                 return (
                     <TextField
-                        fullWidth
-                        label={field.label}
+                        {...commonProps}
                         type="number"
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        variant="outlined"
-                        error={!!errors[field.name]}
-                        helperText={errors[field.name]}
-                        required={field.required}
-                        InputProps={field.adornment ? {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    {field.adornment}
-                                </InputAdornment>
-                            ),
-                        } : undefined}
                     />
                 );
                 
             default:
                 return (
                     <TextField
-                        fullWidth
-                        label={field.label}
+                        {...commonProps}
                         type={field.type || 'text'}
-                        value={formData[field.name] || ''}
-                        onChange={(e) => handleChange(field.name, e.target.value)}
-                        variant="outlined"
-                        error={!!errors[field.name]}
-                        helperText={errors[field.name]}
-                        required={field.required}
                         multiline={field.multiline}
                         rows={field.multiline ? (field.rows || 4) : undefined}
                     />
@@ -233,57 +300,83 @@ const AddPage = ({ title, Icon, fields, onSubmit, onCancel, initialValues = {} }
     };
 
     return (
-        <div className="add-page">
+        <div className="list">
             <SideBar />
-            <div className="add-page-container">
+            <div className="list-container">
                 <NavBar />
-                <div className="add-page-content">
-                    <div className="page-header">
-                        <div className="header-content">
-                            {Icon && <div className="header-icon"><Icon /></div>}
-                            <div className="header-text">
-                                <h1>{title}</h1>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <Paper elevation={2} className="form-paper">
-                        <form onSubmit={handleSubmit} className="form-container">
-                            <div className="form-fields">
-                                {fields.map((field) => (
-                                    <div key={field.name} className={`form-field-container ${field.multiline ? 'full-width' : ''}`}>
-                                        {renderField(field)}
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            <Box className="form-actions">
-                                <Button
-                                    variant="outlined"
-                                    color="inherit"
-                                    onClick={onCancel}
-                                    startIcon={<ArrowBackIcon />}
-                                    size="large"
-                                    className="add-page-action-button add-page-back-button"
-                                    disabled={isSubmitting}
+                <div className="page-content">
+                    <Container maxWidth="lg">
+                        <Paper 
+                            className="add-page-container" 
+                            elevation={0}
+                            sx={{
+                                borderRadius: '24px',
+                                overflow: 'hidden',
+                                position: 'relative',
+                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.06) !important',
+                                border: '1px solid rgba(0, 0, 0, 0.08)'
+                            }}
+                        >
+                            <Box className="add-page-header">
+                                <IconButton 
+                                    onClick={onCancel} 
+                                    className="add-page-back-button"
+                                    sx={{ mr: 2 }}
                                 >
-                                    Отмена
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    endIcon={<SaveIcon />}
-                                    size="large"
-                                    className="add-page-action-button add-page-submit-button"
-                                    style={{ backgroundColor: '#333' }}
-                                    disabled={isSubmitting}
-                                >
-                                    Создать
-                                </Button>
+                                    <ArrowBackIcon />
+                                </IconButton>
+                                <div className="add-page-header-content">
+                                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                                        {title}
+                                    </Typography>
+                                </div>
+                                <Chip 
+                                    label="Создание" 
+                                    variant="outlined" 
+                                    size="small" 
+                                    sx={{ ml: 'auto', borderRadius: '10px' }}
+                                />
                             </Box>
-                        </form>
-                    </Paper>
+                            
+                            <form onSubmit={handleSubmit} className="add-page-form">
+                                <div className="add-page-fields">
+                                    <Grid container spacing={3}>
+                                        {fields.map((field) => (
+                                            <Grid 
+                                                item 
+                                                xs={12} 
+                                                md={field.multiline || field.fullWidth ? 12 : 6} 
+                                                key={field.name}
+                                            >
+                                                {renderField(field)}
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </div>
+                                
+                                <div className="add-page-button-container">
+                                    <Button
+                                        variant="outlined"
+                                        onClick={onCancel}
+                                        className="add-page-cancel-button"
+                                        disabled={isSubmitting}
+                                        startIcon={<ArrowBackIcon />}
+                                    >
+                                        ОТМЕНА
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        className="add-page-save-button"
+                                        disabled={isSubmitting}
+                                        startIcon={<SaveIcon />}
+                                    >
+                                        СОЗДАТЬ
+                                    </Button>
+                                </div>
+                            </form>
+                        </Paper>
+                    </Container>
                 </div>
             </div>
         </div>

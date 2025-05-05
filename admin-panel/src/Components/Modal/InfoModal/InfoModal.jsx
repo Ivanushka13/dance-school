@@ -1,26 +1,60 @@
-import React from "react"
-import "./InfoModal.css"
+import React, {useEffect} from 'react';
+import './InfoModal.css';
+import {useNavigate} from 'react-router-dom';
 
-const InfoModal = ({open, onClose, text}) => {
+const InfoModal = ({
+                     visible = false,
+                     onClose,
+                     title,
+                     message,
+                     actionText = 'Закрыть'
+                   }) => {
+  const navigate = useNavigate();
 
-    if (!open) {
-        return null;
+  useEffect(() => {
+    if (visible) {
+      document.body.style.overflow = 'hidden';
     }
 
-    return (
-        <div className="overlay">
-            <div className="modalContainer">
-                <div className="content">
-                    {text}
-                </div>
-                <div className="btnContainer">
-                    <button className="btnOutline" onClick={onClose}>
-                        <span className="bold">OK</span>
-                    </button>
-                </div>
-            </div>
+    return () => {
+      if (visible) document.body.style.overflow = 'auto';
+    };
+  }, [visible]);
+
+  if (!visible) return null;
+
+  const handleClose = () => {
+    if (message && message === "Ошибка 401: Невалидные учетные данные") {
+      navigate('/login');
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="info-modal-backdrop">
+      <div className="info-modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="info-modal-header">
+          <h3 className="info-modal-title">{title}</h3>
         </div>
-    )
-}
+        {message && (
+          <div className="info-modal-content">
+            <p className="info-modal-message">
+              {message}
+            </p>
+          </div>
+        )}
+        <div className="info-modal-actions">
+          <button
+            className="info-modal-button"
+            onClick={handleClose}
+          >
+            {actionText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default InfoModal;

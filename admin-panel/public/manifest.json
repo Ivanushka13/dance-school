@@ -1,0 +1,13 @@
+{
+  "name": "Elcentro Admin Panel",
+  "short_name": "Admin Panel",
+  "description": "An elcentro dance school admin panel",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d3",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ru-RU",
+  "dir": "ltr"
+}
