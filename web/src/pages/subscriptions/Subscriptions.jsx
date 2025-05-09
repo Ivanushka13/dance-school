@@ -7,9 +7,7 @@ import PageLoader from "../../components/PageLoader/PageLoader";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import InformationModal from "../../components/modal/info/InformationModal";
 import EnumModal from "../../components/modal/enum/EnumModal";
-import {setSession, updateSessionField} from "../../redux/slices/sessionSlice";
-import {setUser} from "../../redux/slices/userSlice";
-import {setLevel} from "../../redux/slices/levelSlice";
+import {updateSessionField} from "../../redux/slices/sessionSlice";
 import {createSubscription, fetchSubscriptions} from "../../api/subscriptions";
 import {fetchPaymentTypes, postPayment} from "../../api/payments";
 import {fetchUserData} from "../../api/auth";
@@ -173,6 +171,19 @@ export default function Subscriptions() {
                     <MdAccessTime className="subscriptions-page detail-icon"/>
                     <span
                       className="subscriptions-page detail-text">Действует до: {formatDate(userSub.subscription_template.expiration_date)}</span>
+                  </div>
+                  <div className="subscriptions-page detail-item">
+                    <MdInfo className="subscriptions-page detail-icon"/>
+                    <div className="subscriptions-page detail-text">
+                      <span className="subscriptions-page detail-label">Доступные стили:</span>
+                      <div className="subscriptions-page dance-styles">
+                        {userSub.subscription_template.lesson_types.map((type) => (
+                          <span key={type.id} className="subscriptions-page dance-style-tag">
+                            {type.dance_style.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

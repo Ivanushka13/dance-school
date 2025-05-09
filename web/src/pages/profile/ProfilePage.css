@@ -283,7 +283,6 @@
     width: 20px;
     height: 20px;
     color: #4CAF50;
-    flex-shrink: 0;
 }
 
 .profile-detail-text {
@@ -293,6 +292,35 @@
     font-weight: 500;
 }
 
+.profile-detail-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.profile-dance-styles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.profile-dance-style-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background-color: rgba(26, 26, 26, 0.05);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-dance-style-tag:hover {
+    background-color: rgba(26, 26, 26, 0.1);
+    transform: translateY(-1px);
+}
 
 .no-items-container {
     display: flex;

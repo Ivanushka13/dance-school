@@ -283,33 +283,35 @@ export const Lesson = () => {
               </div>
             )}
 
-            {!lesson.group_id && students?.length > 0 && (
+            {students?.length > 0 && (
               <div className="lesson-student-section">
                 <div className="lesson-teachers-header">
                   <h2>
                     <MdPerson className="section-icon"/>
-                    Участник занятия
+                    Участники занятия
                   </h2>
                 </div>
                 <div className="lesson-student-info">
-                  <div className="lesson-teacher-item">
-                    {students[0]?.photo ? (
-                      <img src={students[0].photo} alt={students[0].user.first_name}/>
-                    ) : (
-                      <div className="lesson-avatar-circle">
-                        {students[0].user.first_name.charAt(0)}
-                        {students[0].user.last_name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="lesson-teacher-details">
-                      <div className="lesson-teacher-name">
-                        {`${students[0].user.last_name} ${students[0].user.first_name} ${students[0].user?.middle_name || ''}`}
-                      </div>
-                      <div className="lesson-teacher-description">
-                        {students[0].description || `Уровень: ${students[0].level?.name || "Не указан"}`}
+                  {students.map((student) => (
+                    <div key={student.id} className="lesson-teacher-item">
+                      {student?.photo ? (
+                        <img src={student.photo} alt={student.user.first_name}/>
+                      ) : (
+                        <div className="lesson-avatar-circle">
+                          {student.user.first_name.charAt(0)}
+                          {student.user.last_name.charAt(0)}
+                        </div>
+                      )}
+                      <div className="lesson-teacher-details">
+                        <div className="lesson-teacher-name">
+                          {`${student.user.last_name} ${student.user.first_name} ${student.user?.middle_name || ''}`}
+                        </div>
+                        <div className="lesson-teacher-description">
+                          {student.description || `Уровень: ${student.level?.name || "Не указан"}`}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}

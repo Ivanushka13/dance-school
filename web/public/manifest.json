@@ -1,7 +1,7 @@
 {
-  "name": "Dance School Platform",
-  "short_name": "DanceApp",
-  "description": "A platform for students and teachers of elcentro dance school",
+  "name": "Elcentro",
+  "short_name": "Elcentro",
+  "description": "An elcentro dance school platform for students and teachers",
   "start_url": "/login",
   "display": "standalone",
   "background_color": "#ffffff",

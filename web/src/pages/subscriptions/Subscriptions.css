@@ -258,3 +258,33 @@
     color: #666;
     max-width: 400px;
 }
+
+.subscriptions-page .detail-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.subscriptions-page .dance-styles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.subscriptions-page .dance-style-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background-color: rgba(26, 26, 26, 0.05);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.subscriptions-page .dance-style-tag:hover {
+    background-color: rgba(26, 26, 26, 0.1);
+    transform: translateY(-1px);
+}

@@ -38,6 +38,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { apiRequest } from "../../util/apiService";
 
 const Home = () => {
 
@@ -45,7 +46,7 @@ const Home = () => {
   const [dataType, setDataType] = useState('newUsers');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [interval, setInterval] = useState(30); // По умолчанию месяц (30 дней)
+  const [interval, setInterval] = useState(30);
 
 
   const [showChart, setShowChart] = useState(false);
@@ -54,63 +55,58 @@ const Home = () => {
   const [filteredData, setFilteredData] = useState([]);
 
 
-  const dataMap = {
-    newUsers: [
-      {name: 'Янв', value: 65},
-      {name: 'Фев', value: 75},
-      {name: 'Мар', value: 82},
-      {name: 'Апр', value: 90},
-      {name: 'Май', value: 95},
-      {name: 'Июн', value: 110}
-    ],
-    totalLessons: [
-      {name: 'Янв', value: 120},
-      {name: 'Фев', value: 140},
-      {name: 'Мар', value: 150},
-      {name: 'Апр', value: 165},
-      {name: 'Май', value: 180},
-      {name: 'Июн', value: 200}
-    ],
-    teacherLessons: [
-      {name: 'Янв', value: 50},
-      {name: 'Фев', value: 60},
-      {name: 'Мар', value: 65},
-      {name: 'Апр', value: 70},
-      {name: 'Май', value: 75},
-      {name: 'Июн', value: 80}
-    ],
-    subscriptionProfit: [
-      {name: 'Янв', value: 45000},
-      {name: 'Фев', value: 52000},
-      {name: 'Мар', value: 58000},
-      {name: 'Апр', value: 62000},
-      {name: 'Май', value: 70000},
-      {name: 'Июн', value: 85000}
-    ],
-    individualProfit: [
-      {name: 'Янв', value: 15000},
-      {name: 'Фев', value: 18000},
-      {name: 'Мар', value: 20000},
-      {name: 'Апр', value: 22000},
-      {name: 'Май', value: 25000},
-      {name: 'Июн', value: 30000}
-    ]
-  };
-
-
-  const data = dataMap[dataType] || [];
-
-
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
 
 
   const formatValue = (value) => {
-    if (dataType === 'subscriptionProfit' || dataType === 'individualProfit') {
-      return `${value.toLocaleString()} ₽`;
-    }
-    return value;
+    return `${value.toLocaleString()} ₽`;
   };
 
+  const handleChartConstruct = async () => {
+    try {
+      if (!startDate || !endDate) {
+        setError("Необходимо выбрать начальную и конечную даты");
+        setOpenSnackbar(true);
+        return;
+      }
+      
+      const startDateFormatted = startDate.$d.toISOString().split('T')[0];
+      const endDateFormatted = endDate.$d.toISOString().split('T')[0];
+
+      const request = {
+        date_from: startDateFormatted,
+        date_to: endDateFormatted,
+        interval_in_days: interval
+      };
+
+      const response = await apiRequest({
+        method: 'POST',
+        url: '/statistics/subscriptions',
+        data: request
+      });
+
+      console.log(response);
+      
+      if (response && Array.isArray(response)) {
+        const chartData = response.map(item => ({
+          name: `${item.date_from.substring(5)} - ${item.date_to.substring(5)}`,
+          value: item.sum
+        }));
+        
+        setFilteredData(chartData);
+        setShowChart(true);
+        setError("");
+      } else {
+        setError("Некорректный формат данных");
+        setOpenSnackbar(true);
+      }
+
+    } catch (error) {
+      console.error('Error fetching chart data:', error);
+      setError("Не удалось получить данные для графика");
+      setOpenSnackbar(true);
+    }
+  };
 
   const getChartTitle = () => {
     switch (dataType) {
@@ -301,11 +297,8 @@ const Home = () => {
       return;
     }
 
-
-    setFilteredData(dataMap[dataType] || []);
-    setShowChart(true);
-    setError("");
-  }, [chartType, dataType, startDate, endDate, dataMap]);
+    handleChartConstruct();
+  }, [chartType, dataType, startDate, endDate]);
 
 
   const handleCloseSnackbar = () => {
@@ -343,8 +336,8 @@ const Home = () => {
                       label="Тип графика"
                     >
                       <MenuItem value="line">Линейный график</MenuItem>
-                      {/*<MenuItem value="bar">Гистограмма</MenuItem>*/}
-                      {/*<MenuItem value="pie">Круговая диаграмма</MenuItem>*/}
+                      <MenuItem value="bar">Гистограмма</MenuItem>
+                      {/* <MenuItem value="pie">Круговая диаграмма</MenuItem> */}
                     </Select>
                   </FormControl>
                 </div>
@@ -360,11 +353,6 @@ const Home = () => {
                       label="Параметр"
                     >
                       <MenuItem value="newUsers">Прибыль по абонементам</MenuItem>
-                      {/*<MenuItem value="newUsers">Новые пользователи</MenuItem>*/}
-                      {/*<MenuItem value="totalLessons">Количество проведенных занятий</MenuItem>*/}
-                      {/*<MenuItem value="teacherLessons">Количество занятий преподавателя</MenuItem>*/}
-                      {/*<MenuItem value="subscriptionProfit">Прибыль по абонементам</MenuItem>*/}
-                      {/*<MenuItem value="individualProfit">Прибыль по индивидуальным занятиям</MenuItem>*/}
                     </Select>
                   </FormControl>
                 </div>

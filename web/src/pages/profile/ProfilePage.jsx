@@ -15,7 +15,8 @@ import {
   MdEmail,
   MdPhone,
   MdInfo,
-  MdStar
+  MdStar,
+  MdMusicNote
 } from 'react-icons/md';
 import {useEffect, useState} from "react";
 import PageLoader from "../../components/PageLoader/PageLoader";
@@ -168,15 +169,28 @@ const ProfilePage = () => {
                         <div className="profile-detail-item">
                           <MdAssessment className="profile-detail-icon"/>
                           <span className="profile-detail-text">
-                          Оставшихся занятий: {sub.lessons_left}
-                        </span>
+                            Оставшихся занятий: {sub.lessons_left}
+                          </span>
                         </div>
                         <div className="profile-detail-item">
                           <MdAccessTime className="profile-detail-icon"/>
                           <span className="profile-detail-text">
-                          Действует до: {formatDate(sub.subscription_template.expiration_date)}
-                        </span>
+                            Действует до: {formatDate(sub.subscription_template.expiration_date)}
+                          </span>
                         </div>
+                          <div className="profile-detail-item">
+                          <MdInfo className="profile-detail-icon"/>
+                            <div className="profile-detail-text">
+                              <span className="profile-detail-label">Доступные стили:</span>
+                              <div className="profile-dance-styles">
+                                {sub.subscription_template.lesson_types.map((style) => (
+                                  <span key={style.id} className="profile-dance-style-tag">
+                                    {style.dance_style.name}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
                       </div>
                     </div>
                   ))}
