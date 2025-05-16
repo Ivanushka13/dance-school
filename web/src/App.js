@@ -61,7 +61,7 @@ function App() {
           </Route>
 
           <Route path="/" element={<Navigate to="/login" replace/>}/>
-          <Route path="/not-fount" element={<NotFoundPage/>}/>
+          <Route path="/not-found" element={<NotFoundPage/>}/>
           <Route path="*" element={<NotFoundPage/>}/>
         </Routes>
       </Router>
