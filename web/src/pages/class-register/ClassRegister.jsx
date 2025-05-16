@@ -1,13 +1,13 @@
 import "./ClassRegister.css";
 import NavBar from "../../components/navbar/NavBar";
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import SearchBar from "../../components/searchBar/SearchBar";
-import {apiRequest} from "../../util/apiService";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
 import {MdSearchOff} from "react-icons/md";
+import {getLessonTypes} from "../../api/lessonTypes";
 
 const ClassRegister = () => {
 
@@ -24,28 +24,23 @@ const ClassRegister = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/lessonTypes/search/full-info',
-          data: {terminated: false}
-        });
+    fetchClasses().then(() => setLoading(false));
+  }, []);
 
-        setClasses(response.lesson_types);
-        setLoading(false);
+  const fetchClasses = useCallback(async () => {
+    try {
+      const response = await getLessonTypes({terminated: false});
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке типов занятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
+      setClasses(response.lesson_types);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке типов занятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
     }
-
-    fetchClasses();
   }, []);
 
 

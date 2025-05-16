@@ -6,17 +6,18 @@ import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import ru from 'date-fns/locale/ru';
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LessonListItem} from "../../components/LessonListItem/LessonListItem";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {MdEvent} from 'react-icons/md';
-import {apiRequest} from "../../util/apiService";
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getStudentLessons, getTeacherLessons} from "../../api/lessons";
 
 const SchedulePage = () => {
 
   const role = useSelector(state => state.session.role);
+  const id = useSelector(state => state.session.id);
 
   const navigate = useNavigate();
 
@@ -30,40 +31,50 @@ const SchedulePage = () => {
   });
 
   useEffect(() => {
-    const fetchLessons = async () => {
-      try {
-        const date_from = new Date(selectedDate);
-        const date_to = new Date(selectedDate);
-
-        date_from.setUTCHours(0, 0, 0, 0);
-        date_to.setUTCHours(23, 59, 59, 999);
-
-        const response = await apiRequest({
-          method: 'POST',
-          url: `/lessons/search/${role}`,
-          data: {
-            date_from: date_from.toISOString(),
-            date_to: date_to.toISOString(),
-            terminated: false
-          }
-        });
-
-        setLessons(response?.lessons);
-        setLoading(false);
-
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке занятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchLessons();
+    fetchLessons().then(() => setLoading(false));
   }, [selectedDate])
+
+  const fetchLessons = useCallback(async () => {
+    try {
+      const date_from = new Date(selectedDate);
+      const date_to = new Date(selectedDate);
+
+      date_from.setUTCHours(0, 0, 0, 0);
+      date_to.setUTCHours(23, 59, 59, 999);
+
+      let data = {
+        date_from: date_from.toISOString(),
+        date_to: date_to.toISOString(),
+        terminated: false
+      }
+
+      if (role === 'student') {
+        data = {
+          ...data,
+          student_ids: [id]
+        };
+      } else {
+        data = {
+          ...data,
+          teacher_ids: [id]
+        };
+      }
+
+      const response = role === 'student'
+        ? await getStudentLessons(data)
+        : await getTeacherLessons(data);
+
+      setLessons(response?.lessons);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке занятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
+    }
+  }, [role, selectedDate]);
 
   const handleLessonNavigate = (lesson_id) => {
     navigate(`/lesson/${lesson_id}`);

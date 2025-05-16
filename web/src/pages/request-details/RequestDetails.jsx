@@ -4,37 +4,12 @@ import React, {useState, useEffect} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {Button} from "@mui/material";
 import {MdAccessTime, MdEmail, MdPhone, MdStyle, MdCalendarToday, MdInfo} from 'react-icons/md';
-import {apiRequest} from "../../util/apiService";
 import {convertDateToUTC, formatDateToDMY, formatTimeToHM} from "../../util";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
-
-const fetchRequestData = async (
-  lesson_id,
-) => {
-  return await apiRequest({
-    method: 'GET',
-    url: `/lessons/full-info/${lesson_id}`
-  });
-}
-
-const fetchAvailableClassrooms = async (
-  startTime,
-  finishTime,
-  are_neighbours_allowed
-) => {
-  return await apiRequest({
-    method: 'POST',
-    url: '/classrooms/search/available',
-    data: {
-      date_from: convertDateToUTC(startTime),
-      date_to: convertDateToUTC(finishTime),
-      are_neighbours_allowed: are_neighbours_allowed
-    }
-  });
-}
-
+import {editLessonRequest, getRequest} from "../../api/lessons";
+import {getClassrooms} from "../../api/classrooms";
 
 const RequestDetails = () => {
 
@@ -60,7 +35,7 @@ const RequestDetails = () => {
   };
 
   useEffect(() => {
-    fetchRequestData(request_id).then((request_data) => {
+    getRequest(request_id).then((request_data) => {
       setRequest(request_data);
       setStudent(request_data.actual_students[0]);
       setStartTime(request_data.start_time);
@@ -78,11 +53,13 @@ const RequestDetails = () => {
 
   useEffect(() => {
     if (classroomsFetch) {
-      fetchAvailableClassrooms(
-        request.start_time,
-        request.finish_time,
-        request.are_neighbours_allowed
-      ).then((available_classrooms) => {
+      const data = {
+        date_from: convertDateToUTC(request.start_time),
+        date_to: convertDateToUTC(request.finish_time),
+        are_neighbours_allowed: request.are_neighbours_allowed
+      }
+
+      getClassrooms(data).then((available_classrooms) => {
         setClassrooms(available_classrooms.classrooms);
         setClassroomsFetch(false);
       }).catch((error) => {
@@ -123,18 +100,15 @@ const RequestDetails = () => {
 
   const acceptRequest = async () => {
     try {
+      setShowConfirmModal(false);
       setLoading(true);
 
-      const response = await apiRequest({
-        method: 'PATCH',
-        url: `/lessons/request/${request.id}`,
-        data: {
-          is_confirmed: true,
-          classroom_id: selectedClassroom.id
-        }
-      });
+      const data = {
+        is_confirmed: true,
+        classroom_id: selectedClassroom.id
+      }
 
-      setShowConfirmModal(false);
+      const response = await editLessonRequest(request.id, data);
 
       setModalInfo({
         title: "Заявка успешно принята",
@@ -143,8 +117,6 @@ const RequestDetails = () => {
       });
       setShowInfoModal(true);
 
-      setLoading(false);
-
     } catch (error) {
       setShowConfirmModal(false);
       setModalInfo({
@@ -152,24 +124,22 @@ const RequestDetails = () => {
         message: error.message || String(error)
       });
       setShowInfoModal(true);
+    } finally {
       setLoading(false);
     }
   };
 
   const rejectRequest = async () => {
     try {
+      setShowConfirmModal(false);
       setLoading(true);
 
-      const response = await apiRequest({
-        method: 'PATCH',
-        url: `/lessons/request/${request.id}`,
-        data: {
-          is_confirmed: false,
-          classroom_id: null
-        }
-      });
+      const data = {
+        is_confirmed: false,
+        classroom_id: null
+      }
+      const response = await editLessonRequest(request.id, data);
 
-      setLoading(false);
       navigate('/requests');
 
     } catch (error) {

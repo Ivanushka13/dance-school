@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import './SignUpPage.css';
 import {MdError} from 'react-icons/md';
-import {apiRequest} from '../../util/apiService';
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getLevels} from "../../api/levels";
+import {register} from "../../api/auth";
 
 const SignUpPage = () => {
 
@@ -33,35 +34,28 @@ const SignUpPage = () => {
 
 
   useEffect(() => {
-    const fetchLevels = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/levels/search',
-          data: {terminated: false},
-          requiresAuth: false
-        });
+    fetchLevels().then(() => setLoading(false));
+  }, []);
 
-        setLevels(response.levels);
+  const fetchLevels = useCallback(async () => {
+    try {
+      const response = await getLevels({terminated: false});
 
-        setUserData(prev => ({
-          ...prev,
-          level: response[0]?.id || ''
-        }));
+      setLevels(response.levels);
 
-        setLoading(false);
+      setUserData(prev => ({
+        ...prev,
+        level: response[0]?.id || ''
+      }));
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке уровней',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке уровней',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
     }
-
-    fetchLevels();
   }, []);
 
 
@@ -138,12 +132,7 @@ const SignUpPage = () => {
       }
 
       try {
-        const response = await apiRequest({
-          method: 'post',
-          url: '/auth/register',
-          data: data,
-          requiresAuth: false
-        });
+        const response = await register(data);
 
         setModalInfo({
           title: 'Вы успешно зарегистрировались в приложении',

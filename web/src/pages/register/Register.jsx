@@ -24,12 +24,15 @@ import {ru} from 'date-fns/locale';
 import {MdPerson, MdRoom, MdClass, MdClose, MdSearch, MdError, MdInfoOutline} from 'react-icons/md';
 import NavBar from '../../components/navbar/NavBar';
 import './Register.css';
-import {apiRequest} from "../../util/apiService";
 import {createISODate} from "../../util";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import {useNavigate} from "react-router-dom";
+import {getLessonTypes} from "../../api/lessonTypes";
+import {getStudents} from "../../api/students";
+import {getClassrooms} from "../../api/classrooms";
+import {postLesson} from "../../api/lessons";
 
 const StyledDialog = styled(Dialog)(({theme}) => ({
   '& .MuiDialog-paper': {
@@ -92,22 +95,6 @@ styled(Button)({
   }
 });
 
-const fetchClasses = async (
-  date_from,
-  date_to,
-  are_neighbours_allowed
-) => {
-  return await apiRequest({
-    method: 'POST',
-    url: '/classrooms/search/available',
-    data: {
-      date_from: date_from,
-      date_to: date_to,
-      are_neighbours_allowed: are_neighbours_allowed
-    }
-  });
-}
-
 const Register = () => {
 
   const navigate = useNavigate();
@@ -135,12 +122,13 @@ const Register = () => {
   const [errors, setErrors] = useState({});
 
   const fetchClassrooms = useCallback(async () => {
-    fetchClasses(
-      createISODate(startDate, startTime),
-      createISODate(endDate, endTime),
-      allowNeighbors
-    ).then((response) => {
-      console.log("Fetched classrooms");
+    const data = {
+      date_from: createISODate(startDate, startTime),
+      date_to: createISODate(endDate, endTime),
+      are_neighbours_allowed: allowNeighbors
+    }
+
+    getClassrooms(data).then((response) => {
       setClasses(response.classrooms);
     }).catch((error) => {
       setModalInfo({
@@ -154,14 +142,12 @@ const Register = () => {
 
   const fetchLessonTypes = useCallback(async () => {
     try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/lessonTypes/search/full-info',
-        data: {
-          is_group: false,
-          terminated: false
-        }
-      });
+      const data = {
+        is_group: false,
+        terminated: false
+      }
+
+      const response = await getLessonTypes(data);
 
       setLessonTypes(response.lesson_types);
 
@@ -177,14 +163,9 @@ const Register = () => {
 
   const fetchStudents = useCallback(async () => {
     try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/students/search/full-info',
-        data: {terminated: false}
-      });
+      const response = await getStudents({terminated: false});
 
       setStudents(response.students);
-      setLoading(false);
 
     } catch (error) {
       setModalInfo({
@@ -198,16 +179,16 @@ const Register = () => {
 
   useEffect(() => {
     if (startDate !== null && endDate !== null && startTime !== null && endTime !== null) {
-      fetchClassrooms();
+      fetchClassrooms().then();
     }
   }, [fetchClassrooms]);
 
   useEffect(() => {
-    fetchLessonTypes();
+    fetchLessonTypes().then();
   }, [fetchLessonTypes]);
 
   useEffect(() => {
-    fetchStudents();
+    fetchStudents().then(() => setLoading(false));
   }, [fetchStudents]);
 
   const handleLessonNameChange = (e) => {
@@ -363,6 +344,7 @@ const Register = () => {
   }
 
   const createLesson = async () => {
+    setShowConfirmModal(false);
     setLoading(true);
 
     const request = {
@@ -377,14 +359,7 @@ const Register = () => {
     };
 
     try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/lessons/individual',
-        data: request
-      });
-
-      setShowConfirmModal(false);
-      setLoading(false);
+      const response = await postLesson(request);
 
       setModalInfo({
         title: "Занятие успешно создано",
@@ -401,6 +376,8 @@ const Register = () => {
         message: error.message || String(error)
       });
       setShowInfoModal(true);
+      setLoading(false);
+    } finally {
       setLoading(false);
     }
   };

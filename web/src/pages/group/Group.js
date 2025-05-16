@@ -3,7 +3,6 @@ import {useParams, useNavigate} from 'react-router-dom';
 import NavBar from "../../components/navbar/NavBar";
 import './Group.css';
 import {useDispatch, useSelector} from "react-redux";
-import {apiRequest} from "../../util/apiService";
 import {
   MdGroup,
   MdClass,
@@ -19,15 +18,7 @@ import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
 import {fetchUserData} from "../../api/auth";
 import {updateSessionField} from "../../redux/slices/sessionSlice";
-
-const fetchGroup = async (
-  group_id
-) => {
-  return await apiRequest({
-    method: 'GET',
-    url: `/groups/full-info/${group_id}`
-  });
-};
+import {deleteStudentFromGroup, fetchGroup, groupJoin} from "../../api/group";
 
 export const Group = () => {
 
@@ -90,7 +81,7 @@ export const Group = () => {
   }, [dispatch, session.groups]);
 
   useEffect(() => {
-    fetchGroupData();
+    fetchGroupData().then();
   }, [fetchGroupData]);
 
   const joinGroup = async () => {
@@ -98,11 +89,7 @@ export const Group = () => {
       setLoading(true);
       setShowConfirmModal(false);
 
-      await apiRequest({
-        method: 'POST',
-        url: `students/groups/${user_id}/${group.id}`
-      });
-
+      await groupJoin(user_id, group.id);
       await fetchUserInfo();
 
       setRefreshData((prev) => prev + 1);
@@ -130,11 +117,7 @@ export const Group = () => {
       setLoading(true);
       setShowConfirmModal(false);
 
-      await apiRequest({
-        method: 'DELETE',
-        url: `students/groups/${student_id}/${group.id}`
-      });
-
+      await deleteStudentFromGroup(student_id, group.id);
       await fetchUserInfo();
 
       setRefreshData((prev) => prev + 1);

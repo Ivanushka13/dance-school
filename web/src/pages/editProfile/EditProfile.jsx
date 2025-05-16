@@ -1,14 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import NavBar from '../../components/navbar/NavBar';
 import './EditProfile.css';
 import {useDispatch, useSelector} from "react-redux";
-import {apiRequest} from "../../util/apiService";
 import {setUser} from "../../redux/slices/userSlice";
 import {setLevel} from "../../redux/slices/levelSlice";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import {MdError} from 'react-icons/md';
+import {getLevels} from "../../api/levels";
+import {editTeacher} from "../../api/teachers";
+import {editStudent} from "../../api/students";
 
 const EditProfile = () => {
 
@@ -49,28 +51,23 @@ const EditProfile = () => {
   }, [user, level]);
 
   useEffect(() => {
-    const fetchLevels = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/levels/search',
-          data: {terminated: false}
-        });
+    fetchLevels().then(() => setLoading(false));
+  }, []);
 
-        setLevels(response.levels);
-        setLoading(false);
+  const fetchLevels = useCallback(async () => {
+    try {
+      const response = await getLevels({terminated: false});
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке уровней',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
+      setLevels(response.levels);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке уровней',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
     }
-
-    fetchLevels()
   }, []);
 
   const handleChange = (e) => {
@@ -104,11 +101,9 @@ const EditProfile = () => {
     };
 
     try {
-      const response = await apiRequest({
-        method: 'patch',
-        url: session.role === 'student' ? `/students/${session.id}` : `/teachers/${session.id}`,
-        data: user_update
-      });
+      const response = session.role === 'student'
+        ? await editStudent(session.id, user_update)
+        : await editTeacher(session.id, user_update);
 
       dispatch(setUser(response.user));
       if (session.role === 'student') {
@@ -163,14 +158,14 @@ const EditProfile = () => {
     setLoading(true);
 
     try {
-      const response = await apiRequest({
-        method: 'patch',
-        url: session.role === 'student' ? `/students/${session.id}` : `/teachers/${session.id}`,
-        data: {
-          old_password: formData.oldPassword,
-          new_password: formData.newPassword
-        }
-      });
+      const password_update = {
+        old_password: formData.oldPassword,
+        new_password: formData.newPassword
+      }
+
+      const response = session.role === 'student'
+        ? await editStudent(session.id, password_update)
+        : await editTeacher(session.id, password_update);
 
       setFormData({
         ...formData,

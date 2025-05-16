@@ -4,11 +4,11 @@ import {useNavigate} from "react-router-dom";
 import {login} from "../../util/apiService";
 import {useDispatch} from 'react-redux';
 import {setUser} from '../../redux/slices/userSlice';
-import {apiRequest} from "../../util/apiService";
 import {setSession} from "../../redux/slices/sessionSlice";
 import {setLevel} from "../../redux/slices/levelSlice";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import {fetchUserData} from "../../api/auth";
 
 const LoginPage = () => {
 
@@ -49,10 +49,7 @@ const LoginPage = () => {
         client_secret: null
       });
 
-      const meResponse = await apiRequest({
-        method: 'get',
-        url: '/auth/me',
-      });
+      const meResponse = await fetchUserData();
 
       dispatch(setSession(meResponse));
       dispatch(setUser(meResponse.user));

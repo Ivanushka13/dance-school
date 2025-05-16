@@ -1,22 +1,22 @@
 import {apiRequest} from "../util/apiService";
 
-export const getTeachers = async (
+export const getStudents = async (
   data
 ) => {
   return await apiRequest({
     method: 'POST',
-    url: '/teachers/search/full-info',
+    url: '/students/search/full-info',
     data: data
   });
 }
 
-export const editTeacher = async (
+export const editStudent = async (
   id,
   data
 ) => {
   return await apiRequest({
     method: 'PATCH',
-    url: `/teachers/${id}`,
+    url: `/students/${id}`,
     data: data
   });
 }

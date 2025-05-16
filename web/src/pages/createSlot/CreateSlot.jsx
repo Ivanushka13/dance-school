@@ -5,7 +5,6 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {ru} from 'date-fns/locale';
 import NavBar from '../../components/navbar/NavBar';
 import './CreateSlot.css';
-import {apiRequest} from "../../util/apiService";
 import {timeToUTC} from "../../util";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
@@ -19,6 +18,7 @@ import {
   TextField,
   Button
 } from '@mui/material';
+import {createSlot} from "../../api/slots";
 
 const CreateSlot = () => {
 
@@ -115,11 +115,7 @@ const CreateSlot = () => {
     };
 
     try {
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/slots',
-        data: request
-      });
+      const response = await createSlot(request);
 
       setModalInfo({
         title: 'Слот успешно создан',

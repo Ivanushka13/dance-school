@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import NavBar from "../../components/navbar/NavBar";
 import {MdEmail, MdPhone, MdInfoOutline} from "react-icons/md";
 import Dialog from "@mui/material/Dialog";
@@ -9,9 +9,9 @@ import Button from "@mui/material/Button";
 import {useNavigate} from "react-router-dom";
 import {styled} from '@mui/material/styles';
 import "./Requests.css";
-import {apiRequest} from "../../util/apiService";
 import InformationModal from "../../components/modal/info/InformationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
+import {getRequests} from "../../api/lessons";
 
 const StyledDialogTitle = styled(DialogTitle)({
   margin: 0,
@@ -60,32 +60,29 @@ const Requests = () => {
   const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/lessons/search/teacher',
-          data: {
-            is_confirmed: false,
-            terminated: false
-          }
-        });
+    fetchRequests().then(() => setLoading(false));
+  }, []);
 
-        setRequests(response.lessons);
-        setLoading(false);
+  const fetchRequests = useCallback(async () => {
+    try {
+      const  data = {
+        is_confirmed: false,
+        terminated: false
+      };
 
-      } catch (error) {
-        setLoading(false);
-        setModalInfo({
-          title: 'Ошибка во время загрузки заявок',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
-    };
+      const response = await getRequests(data);
 
-    fetchRequests();
+      setRequests(response.lessons);
+
+    } catch (error) {
+      setLoading(false);
+      setModalInfo({
+        title: 'Ошибка во время загрузки заявок',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
+    }
   }, []);
 
 

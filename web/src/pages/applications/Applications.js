@@ -1,17 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import NavBar from '../../components/navbar/NavBar';
 import {useNavigate} from 'react-router-dom';
-import {useSelector} from 'react-redux';
-import {apiRequest} from '../../util/apiService';
 import {MdArrowBack, MdAccessTime, MdPerson, MdOutlineBookmark, MdDateRange, MdAssignment} from 'react-icons/md';
 import './Applications.css';
 import {formatDateToDMY, formatTimeToHM} from '../../util';
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getApplications} from "../../api/applications";
 
 const Applications = () => {
 
-  const session = useSelector(state => state.session);
   const navigate = useNavigate();
 
   const [applications, setApplications] = useState([]);
@@ -21,28 +19,23 @@ const Applications = () => {
 
 
   useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/lessons/search/student',
-          data: {is_group: false}
-        });
+    fetchApplications().then(() => setLoading(false));
+  }, []);
 
-        setApplications(response.lessons);
-        setLoading(false);
+  const fetchApplications = useCallback(async () => {
+    try {
+      const response = await getApplications({is_group: false});
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке заявок',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
-    };
+      setApplications(response.lessons);
 
-    fetchApplications();
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке заявок',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
+    }
   }, []);
 
   const handleGoBack = () => {

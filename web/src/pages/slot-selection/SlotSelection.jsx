@@ -11,8 +11,8 @@ import {formatTimeToHM} from "../../util";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
-import {fetchSlots} from "../../api/slots";
-import {fetchTeachers} from "../../api/teachers";
+import {getSlots} from "../../api/slots";
+import {getTeachers} from "../../api/teachers";
 import {postLessonRequest} from "../../api/lessons";
 import {
   Dialog,
@@ -60,7 +60,7 @@ const SlotSelection = () => {
     date_from.setUTCHours(0, 0, 0, 0);
     date_to.setUTCHours(23, 59, 59, 999);
 
-    fetchSlots(
+    getSlots(
       date_from,
       date_to,
       [selectedLessonType.id]
@@ -82,7 +82,7 @@ const SlotSelection = () => {
   }, [selectedDate, selectedLessonType, loading])
 
   useEffect(() => {
-    fetchTeachers({terminated: false}).then((response) => {
+    getTeachers({terminated: false}).then((response) => {
       setTeachers(response.teachers);
     }).catch((error) => {
       setModalInfo({

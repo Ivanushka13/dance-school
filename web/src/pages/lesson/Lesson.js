@@ -2,8 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import NavBar from "../../components/navbar/NavBar";
 import './Lesson.css';
-import {useSelector} from "react-redux";
-import {apiRequest} from "../../util/apiService";
+import {useDispatch, useSelector} from "react-redux";
 import {
   getDateFromISOstring,
   getTimeFromISOstring,
@@ -25,9 +24,13 @@ import {Button} from "@mui/material";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getLesson, revokeLesson, signUpForLesson} from "../../api/lessons";
+import {fetchUserData} from "../../api/auth";
+import {setSession} from "../../redux/slices/sessionSlice";
 
 export const Lesson = () => {
 
+  const dispatch = useDispatch();
   const role = useSelector(state => state.session.role);
   const session = useSelector(state => state.session);
   const navigate = useNavigate();
@@ -72,10 +75,7 @@ export const Lesson = () => {
 
   const fetchLesson = useCallback(async () => {
     try {
-      const lesson_response = await apiRequest({
-        method: 'GET',
-        url: `/lessons/full-info/${lesson_id}`
-      });
+      const lesson_response = await getLesson(lesson_id)
 
       await setLessonInfo(lesson_response);
 
@@ -90,7 +90,7 @@ export const Lesson = () => {
   }, [lesson_id, setLessonInfo, refreshData]);
 
   useEffect(() => {
-    fetchLesson();
+    fetchLesson().then();
   }, [fetchLesson]);
 
   const joinLesson = useCallback(async () => {
@@ -98,10 +98,10 @@ export const Lesson = () => {
       setLoading(true);
       setShowConfirmModal(false);
 
-      await apiRequest({
-        method: 'POST',
-        url: `/subscriptions/lessons/${selectedSubscription.id}/${lesson.id}`
-      });
+      await signUpForLesson(selectedSubscription.id, lesson.id);
+
+      const meResponse = await fetchUserData();
+      dispatch(setSession(meResponse));
 
       setSelectedSubscription(null);
       setRefreshData((prev) => prev + 1);
@@ -121,10 +121,10 @@ export const Lesson = () => {
       setLoading(true);
       setShowConfirmModal(false);
 
-      await apiRequest({
-        method: 'PATCH',
-        url: `/subscriptions/lessons/cancel/${lesson.used_subscription.id}/${lesson.id}`
-      });
+      await revokeLesson(lesson.used_subscription.id, lesson.id);
+
+      const meResponse = await fetchUserData();
+      dispatch(setSession(meResponse));
 
       setRefreshData((prev) => prev + 1);
 

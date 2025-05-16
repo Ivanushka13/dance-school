@@ -1,6 +1,6 @@
 import "./GroupLessons.css";
 import NavBar from "../../components/navbar/NavBar";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {DateCalendar} from '@mui/x-date-pickers/DateCalendar';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import ru from 'date-fns/locale/ru';
@@ -18,10 +18,14 @@ import {
 } from "@mui/material";
 import {MdFilterList, MdEvent} from 'react-icons/md';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {apiRequest} from "../../util/apiService";
 import {LessonListItem} from "../../components/LessonListItem/LessonListItem";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getGroupLessons} from "../../api/lessons";
+import {getTeachers} from "../../api/teachers";
+import {getGroups} from "../../api/group";
+import {getLessonTypes} from "../../api/lessonTypes";
+import {getLevels} from "../../api/levels";
 
 const GroupLessons = () => {
   const navigate = useNavigate();
@@ -45,142 +49,125 @@ const GroupLessons = () => {
   });
 
   useEffect(() => {
-    const fetchGroupLessons = async () => {
-      try {
-        const date_from = new Date(selectedDate);
-        const date_to = new Date(selectedDate);
+    fetchGroupLessons().then(() => setLoading(false));
+  }, [selectedDate]);
 
-        date_from.setUTCHours(0, 0, 0, 0);
-        date_to.setUTCHours(23, 59, 59, 999);
+  const fetchGroupLessons = useCallback(async () => {
+    try {
+      const date_from = new Date(selectedDate);
+      const date_to = new Date(selectedDate);
 
-        const response = await apiRequest({
-          method: 'POST',
-          url: 'lessons/search/group',
-          data: {
-            date_from: date_from.toISOString(),
-            date_to: date_to.toISOString(),
-            is_confirmed: true,
-            is_group: true,
-            terminated: false,
-            in_group: false
-          }
-        });
+      date_from.setUTCHours(0, 0, 0, 0);
+      date_to.setUTCHours(23, 59, 59, 999);
 
-        setLessons(response.lessons);
-        setLoading(false);
-
-
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке занятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-      } finally {
-        setLoading(false);
+      const data = {
+        date_from: date_from.toISOString(),
+        date_to: date_to.toISOString(),
+        is_confirmed: true,
+        is_group: true,
+        terminated: false,
+        in_group: false
       }
-    }
 
-    fetchGroupLessons();
+      const response = await getGroupLessons(data);
+
+      setLessons(response.lessons);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке занятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
+    }
   }, [selectedDate]);
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/teachers/search/full-info',
-          data: {terminated: false}
-        });
+    fetchTeachers().then();
+  }, []);
 
-        setTeachers(response.teachers);
+  const fetchTeachers = useCallback(async () => {
+    try {
+      const response = await getTeachers({terminated: false})
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке преподавателей',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-      }
+      setTeachers(response.teachers);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке преподавателей',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
     }
-
-    fetchTeachers();
   }, []);
 
   useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/groups/search',
-          data: {
-            has_teachers: true,
-            has_students: true,
-            terminated: false
-          }
-        });
+    fetchGroups().then();
+  }, []);
 
-        setGroups(response.groups);
-
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке групп',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
+  const fetchGroups = useCallback(async () => {
+    try {
+      const data = {
+        has_teachers: true,
+        has_students: true,
+        terminated: false
       }
-    }
 
-    fetchGroups();
+      const response = await getGroups(data);
+
+      setGroups(response.groups);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке групп',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchLevels().then();
+  }, []);
+
+  const fetchLevels = useCallback(async () => {
+    try {
+      const response = await getLevels({terminated: false});
+
+      setLevels(response.levels);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке уровней',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+    }
   }, []);
 
   useEffect(() => {
-    const fetchLevels = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/levels/search',
-          data: {terminated: false}
-        });
-
-        setLevels(response.levels);
-
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке уровней',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-      }
-    }
-
-    fetchLevels();
+    fetchLessonTypes().then();
   }, []);
 
-  useEffect(() => {
-    const fetchLessonTypes = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/lessonTypes/search/full-info',
-          data: {
-            terminated: false,
-            is_group: true,
-          }
-        });
-
-        setLessonTypes(response.lesson_types);
-
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке типов занятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
+  const fetchLessonTypes = useCallback(async () => {
+    try {
+      const data = {
+        terminated: false,
+        is_group: true,
       }
-    }
 
-    fetchLessonTypes();
+      const response = await getLessonTypes(data);
+
+      setLessonTypes(response.lesson_types);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке типов занятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+    }
   }, []);
 
   const handleFilterChange = (event) => {

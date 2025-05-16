@@ -1,13 +1,14 @@
 import "./EventPage.css"
 import NavBar from "../../components/navbar/NavBar";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {MdSearch} from 'react-icons/md';
 import {EventListItem} from "../../components/EventListItem/EventListItem";
 import EventFilters from "../../components/EventFilters/EventFilters";
 import {sortData} from "../../util";
-import {apiRequest} from "../../util/apiService";
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
+import {getEvents} from "../../api/events";
+import {getEventTypes} from "../../api/eventTypes";
 
 const EventPage = () => {
   const [searchText, setSearchText] = useState("");
@@ -18,58 +19,49 @@ const EventPage = () => {
   const [modalInfo, setModalInfo] = useState({});
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/events/search/full-info',
-          data: {terminated: false}
-        });
+    fetchEvents().then();
+  }, []);
 
-        setEvents(response.events);
+  const fetchEvents = useCallback(async () => {
+    try {
+      const response = await getEvents({terminated: false});
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке мероприятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
+      setEvents(response.events);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке мероприятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
     }
-
-    fetchEvents();
   }, []);
 
   useEffect(() => {
-    const fetchEventTypes = async () => {
-      try {
-        const response = await apiRequest({
-          method: 'POST',
-          url: '/eventTypes/search',
-          data: {terminated: false}
-        });
+    fetchEventTypes().then(() => setLoading(false));
+  }, []);
 
-        const updatedTags = response.event_types.map((tag) => ({
-          ...tag,
-          value: false,
-          color: 'black'
-        }));
+  const fetchEventTypes = useCallback(async () => {
+    try {
+      const response = await getEventTypes({terminated: false});
 
-        setSearchTags(updatedTags);
-        setLoading(false);
+      const updatedTags = response.event_types.map((tag) => ({
+        ...tag,
+        value: false,
+        color: 'black'
+      }));
 
-      } catch (error) {
-        setModalInfo({
-          title: 'Ошибка при загрузке типов мероприятий',
-          message: error.message || String(error),
-        });
-        setShowModal(true);
-        setLoading(false);
-      }
+      setSearchTags(updatedTags);
+
+    } catch (error) {
+      setModalInfo({
+        title: 'Ошибка при загрузке типов мероприятий',
+        message: error.message || String(error),
+      });
+      setShowModal(true);
+      setLoading(false);
     }
-
-    fetchEventTypes();
   }, []);
 
   const filteredData = sortData(events, searchText, searchTags);

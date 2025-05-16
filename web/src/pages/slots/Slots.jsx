@@ -2,13 +2,13 @@ import React, {useState, useEffect} from 'react';
 import NavBar from '../../components/navbar/NavBar';
 import {useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
-import {apiRequest} from '../../util/apiService';
 import {MdArrowBack, MdAccessTime, MdCalendarToday, MdSchedule, MdDelete} from 'react-icons/md';
 import './Slots.css';
 import PageLoader from "../../components/PageLoader/PageLoader";
 import InformationModal from "../../components/modal/info/InformationModal";
 import {formatTime} from "../../util";
 import ConfirmationModal from "../../components/modal/confirm/ConfirmationModal";
+import {deleteTeacherSlot, getAllSlots} from "../../api/slots";
 
 const Slots = () => {
   const session = useSelector(state => state.session);
@@ -28,13 +28,12 @@ const Slots = () => {
   const fetchSlots = async () => {
     try {
       setLoading(true);
-      const response = await apiRequest({
-        method: 'POST',
-        url: '/slots/search',
-        data: {
-          teacher_ids: [session.id],
-        }
-      });
+
+      const data = {
+        teacher_ids: [session.id]
+      }
+
+      const response = await getAllSlots(data);
       
       setSlots(response.slots);
 
@@ -69,11 +68,7 @@ const Slots = () => {
       setLoading(true);
       setShowConfirmModal(false);
       
-      await apiRequest({
-        method: 'DELETE',
-        url: `/slots/${slot_id}`
-      });
-
+      await deleteTeacherSlot(slot_id);
       await fetchSlots();
 
       setModalInfo({
