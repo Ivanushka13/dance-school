@@ -1,15 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import SideBar from "../../Components/SideBar/SideBar";
-import NavBar from "../../Components/NavBar/NavBar";
-import { DataGrid } from "@mui/x-data-grid";
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import {Link, useNavigate} from "react-router-dom";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addDanceStyle, editDanceStyle, getDanceStyles} from "../../api/danceStyles";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -73,11 +67,7 @@ const DanceStyles = () => {
 
   const fetchDanceStyles = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/danceStyles/search',
-      data: {}
-    }).then(async (response) => {
+    getDanceStyles({}).then(async (response) => {
       setDanceStyles(response.dance_styles);
     }).catch((error) => {
       setModalInfo({
@@ -100,17 +90,9 @@ const DanceStyles = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/danceStyles/${id}`,
-          data: formData
-        });
+        await editDanceStyle(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/danceStyles',
-          data: formData
-        });
+        await addDanceStyle(id, formData);
       }
 
       setRefreshData((prev) => prev + 1);

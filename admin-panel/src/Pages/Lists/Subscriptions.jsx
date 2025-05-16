@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addSubscription, editSubscription, getSubscriptions} from "../../api/subscriptions";
 
 const createData = [
   {field: 'subscription_template_id', headerName: 'Шаблон абонемента', type: 'text', required: true},
@@ -68,11 +68,7 @@ const Subscriptions = () => {
 
   const fetchSubscriptions = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/subscriptions/search',
-      data: {}
-    }).then(async (response) => {
+    getSubscriptions({}).then(async (response) => {
       setSubscriptions(response.subscriptions);
     }).catch((error) => {
       setModalInfo({
@@ -95,17 +91,9 @@ const Subscriptions = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/subscriptions/${id}`,
-          data: formData
-        });
+        await editSubscription(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/subscriptions',
-          data: formData
-        });
+        await addSubscription(formData);
       }
 
       setRefreshData((prev) => prev + 1);

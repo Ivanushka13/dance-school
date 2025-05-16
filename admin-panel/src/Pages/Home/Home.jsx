@@ -43,7 +43,7 @@ import { apiRequest } from "../../util/apiService";
 const Home = () => {
 
   const [chartType, setChartType] = useState('line');
-  const [dataType, setDataType] = useState('newUsers');
+  const [dataType, setDataType] = useState('subscriptionProfit');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [interval, setInterval] = useState(30);
@@ -85,8 +85,6 @@ const Home = () => {
         data: request
       });
 
-      console.log(response);
-      
       if (response && Array.isArray(response)) {
         const chartData = response.map(item => ({
           name: `${item.date_from.substring(5)} - ${item.date_to.substring(5)}`,
@@ -298,7 +296,7 @@ const Home = () => {
     }
 
     handleChartConstruct();
-  }, [chartType, dataType, startDate, endDate]);
+  }, [chartType, dataType, startDate, endDate, interval]);
 
 
   const handleCloseSnackbar = () => {
@@ -352,7 +350,7 @@ const Home = () => {
                       onChange={handleDataTypeChange}
                       label="Параметр"
                     >
-                      <MenuItem value="newUsers">Прибыль по абонементам</MenuItem>
+                      <MenuItem value="subscriptionProfit">Прибыль по абонементам</MenuItem>
                     </Select>
                   </FormControl>
                 </div>

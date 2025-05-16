@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addTeacher, editTeacher, getTeachers} from "../../api/teachers";
 
 const createData = [
   {field: 'email', headerName: 'Почта', type: 'email', required: true},
@@ -99,11 +99,7 @@ const Teachers = () => {
 
   const fetchTeachers = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/teachers/search/full-info',
-      data: {}
-    }).then(async (response) => {
+    getTeachers({}).then(async (response) => {
       setTeachers(response.teachers.map((teacher) => {
         return {
           id: teacher.id,
@@ -139,17 +135,9 @@ const Teachers = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/teachers/${id}`,
-          data: formData
-        });
+        await editTeacher(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/teachers',
-          data: formData
-        });
+        await addTeacher(formData);
       }
 
       setRefreshData((prev) => prev + 1);

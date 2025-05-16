@@ -40,7 +40,6 @@ const apiRequest = async ({
     return response.data;
   } catch (error) {
     if (error.response) {
-      console.log(error.response);
       const status = error.response.status;
       const message = error.response.data?.detail || 'Ошибка сервера';
       console.error(`Exception occurred during request: url: ${url}, status: ${status}, message: ${message}`);

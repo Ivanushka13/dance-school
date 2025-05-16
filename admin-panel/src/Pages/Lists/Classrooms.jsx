@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addClassroom, editClassroom, getClassrooms} from "../../api/classrooms";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -59,11 +59,7 @@ const Classrooms = () => {
 
   const fetchClassrooms = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/classrooms/search',
-      data: {}
-    }).then(async (response) => {
+    getClassrooms({}).then(async (response) => {
       setClassrooms(response.classrooms);
     }).catch((error) => {
       setModalInfo({
@@ -86,17 +82,9 @@ const Classrooms = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/classrooms/${id}`,
-          data: formData
-        });
+        await editClassroom(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/classrooms',
-          data: formData
-        });
+        await addClassroom(formData);
       }
 
       setRefreshData((prev) => prev + 1);

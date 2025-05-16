@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import CategoryIcon from '@mui/icons-material/Category';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addEventType, editEventType, getEventTypes} from "../../api/eventTypes";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -59,11 +59,7 @@ const EventTypes = () => {
 
   const fetchEventTypes = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/eventTypes/search',
-      data: {}
-    }).then(async (response) => {
+    getEventTypes({}).then(async (response) => {
       setEventTypes(response.event_types);
     }).catch((error) => {
       setModalInfo({
@@ -86,17 +82,9 @@ const EventTypes = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/eventTypes/${id}`,
-          data: formData
-        });
+        await editEventType(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/eventTypes',
-          data: formData
-        });
+        await addEventType(formData);
       }
 
       setRefreshData((prev) => prev + 1);

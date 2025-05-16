@@ -1,12 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import GroupIcon from '@mui/icons-material/Group';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import {useNavigate} from "react-router-dom";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addGroup, editGroup, getGroups} from "../../api/groups";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -80,11 +78,7 @@ const Groups = () => {
 
   const fetchGroups = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/groups/search/',
-      data: {}
-    }).then(async (response) => {
+    getGroups({}).then(async (response) => {
       setGroups(response.groups);
     }).catch((error) => {
       setModalInfo({
@@ -107,17 +101,9 @@ const Groups = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/groups/${id}`,
-          data: formData
-        });
+        await editGroup(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/groups',
-          data: formData
-        });
+        await addGroup(formData);
       }
 
       setRefreshData((prev) => prev + 1);

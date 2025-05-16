@@ -12,10 +12,11 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CloseIcon from '@mui/icons-material/Close';
 import SecurityIcon from '@mui/icons-material/Security';
-import { MdError } from 'react-icons/md';
+import {MdError} from 'react-icons/md';
 import {apiRequest} from "../../util/apiService";
 import {useDispatch, useSelector} from "react-redux";
 import {updateSessionField} from "../../redux/sessionSlice";
+import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 
 const Profile = () => {
 
@@ -30,6 +31,8 @@ const Profile = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({});
 
   const [formData, setFormData] = useState({
     first_name: user.first_name,
@@ -132,25 +135,29 @@ const Profile = () => {
       setIsLoading(true);
 
       try {
-      const user_update = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        middle_name: formData.middle_name,
-        ...(formData.email !== user.email && {email: formData.email}),
-        ...(formData.phone_number !== user.phone_number && {phone_number: formData.phone_number}),
-      };
+        const user_update = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          middle_name: formData.middle_name,
+          ...(formData.email !== user.email && {email: formData.email}),
+          ...(formData.phone_number !== user.phone_number && {phone_number: formData.phone_number}),
+        };
 
-      const response_data = await apiRequest({
-        method: 'patch',
-        url: `/admins/${session.id}`,
+        const response_data = await apiRequest({
+          method: 'patch',
+          url: `/admins/${session.id}`,
           data: user_update
-      });
+        });
 
-      dispatch(updateSessionField(response_data));
+        dispatch(updateSessionField(response_data));
 
-      setIsEditing(false);
+        setIsEditing(false);
       } catch (error) {
-        console.error(`Ошибка во время изменения данных: ${error}`);
+        setModalInfo({
+          title: 'Ошибка при загрузке данных',
+          message: error.message || String(error),
+        });
+        setShowInfoModal(true);
       } finally {
         setIsLoading(false);
       }
@@ -181,7 +188,11 @@ const Profile = () => {
         });
 
       } catch (error) {
-        console.error(`Ошибка при изменении пароля: ${error}`);
+        setModalInfo({
+          title: 'Ошибка при загрузке данных',
+          message: error.message || String(error),
+        });
+        setShowInfoModal(true);
       } finally {
         setIsLoading(false);
       }
@@ -211,285 +222,293 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-page">
-      <SideBar/>
-      <div className="profile-container">
-        <NavBar/>
-        <div className="profile-content">
-          <div className="profile-main-content">
-            <div className="profile-header">
-              <div className="profile-header-content">
-                <div className="profile-header-icon">
-                  <PersonIcon/>
-                </div>
-                <div className="profile-header-text">
-                  <h1>Профиль</h1>
+    <>
+      <div className="profile-page">
+        <SideBar/>
+        <div className="profile-container">
+          <NavBar/>
+          <div className="profile-content">
+            <div className="profile-main-content">
+              <div className="profile-header">
+                <div className="profile-header-content">
+                  <div className="profile-header-icon">
+                    <PersonIcon/>
+                  </div>
+                  <div className="profile-header-text">
+                    <h1>Профиль</h1>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="profile-cards-container">
-              <div className="profile-card">
-                <div className="profile-card-header">
-                  <h2>Личная информация</h2>
-                  <div className="profile-header-controls">
-                  {!isEditing && (
-                    <button
-                      className="edit-button"
-                      onClick={() => setIsEditing(true)}
-                        disabled={isLoading}
-                    >
-                      <EditIcon/>
-                      <span>Редактировать</span>
-                    </button>
-                  )}
-                  </div>
-                </div>
-
-                <div className="profile-form">
-                  <div className="profile-form-group">
-                    <label htmlFor="firstName">Имя</label>
-                    <div className={`profile-input-wrapper ${errors.firstName ? 'error' : ''}`}>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="first_name"
-                        value={formData.first_name || ''}
-                        onChange={handleChange}
-                        disabled={!isEditing || isLoading}
-                        placeholder="Введите имя"
-                      />
-                    </div>
-                    {errors.firstName &&
-                      <div className="profile-error-message">
-                        <MdError />
-                        <span>{errors.firstName}</span>
-                      </div>}
-                  </div>
-
-                  <div className="profile-form-group">
-                    <label htmlFor="lastName">Фамилия</label>
-                    <div className={`profile-input-wrapper ${errors.lastName ? 'error' : ''}`}>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="last_name"
-                        value={formData.last_name || ''}
-                        onChange={handleChange}
-                        disabled={!isEditing || isLoading}
-                        placeholder="Введите фамилию"
-                      />
-                    </div>
-                    {errors.lastName &&
-                      <div className="profile-error-message">
-                        <MdError />
-                        <span>{errors.lastName}</span>
-                      </div>}
-                  </div>
-
-                  <div className="profile-form-group">
-                    <label htmlFor="middleName">Отчество</label>
-                    <div className={`profile-input-wrapper ${errors.middleName ? 'error' : ''}`}>
-                      <input
-                        type="text"
-                        id="middleName"
-                        name="middle_name"
-                        value={formData.middle_name || ''}
-                        onChange={handleChange}
-                        disabled={!isEditing || isLoading}
-                        placeholder="Введите отчество"
-                      />
-                    </div>
-                    {errors.middleName &&
-                      <div className="profile-error-message">
-                        <MdError />
-                        <span>{errors.middleName}</span>
-                      </div>}
-                  </div>
-
-                  <div className="profile-form-group">
-                    <label htmlFor="email">Email</label>
-                    <div className={`profile-input-wrapper ${errors.email ? 'error' : ''}`}>
-                      <EmailIcon className="profile-field-icon"/>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email || ''}
-                        onChange={handleChange}
-                        disabled={!isEditing || isLoading}
-                        placeholder="Введите email"
-                      />
-                    </div>
-                    {errors.email && 
-                      <div className="profile-error-message">
-                        <MdError />
-                        <span>{errors.email}</span>
-                      </div>}
-                  </div>
-
-                  <div className="profile-form-group">
-                    <label htmlFor="phone">Номер телефона</label>
-                    <div className={`profile-input-wrapper ${errors.phone ? 'error' : ''}`}>
-                      <PhoneIcon className="profile-field-icon"/>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone_number"
-                        value={formData.phone_number || ''}
-                        onChange={handleChange}
-                        disabled={!isEditing || isLoading}
-                        placeholder="Введите номер телефона"
-                      />
-                    </div>
-                    {errors.phone && 
-                      <div className="profile-error-message">
-                        <MdError />
-                        <span>{errors.phone}</span>
-                      </div>}
-                  </div>
-                </div>
-
-                {isEditing && (
-                  <div className="profile-actions">
-                    <button
-                      className="cancel-button"
-                      onClick={handleCancelEdit}
-                      disabled={isLoading}
-                    >
-                      <CloseIcon/>
-                      <span>Отмена</span>
-                    </button>
-                    <button
-                      className="save-button"
-                      onClick={handleSaveProfile}
-                      disabled={isLoading}
-                    >
-                      <SaveIcon/>
-                      <span>{isLoading ? 'Сохранение...' : 'Сохранить изменения'}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {isEditing && (
+              <div className="profile-cards-container">
                 <div className="profile-card">
                   <div className="profile-card-header">
-                    <h2>Изменение пароля</h2>
-                    <div className="security-icon">
-                      <SecurityIcon/>
+                    <h2>Личная информация</h2>
+                    <div className="profile-header-controls">
+                      {!isEditing && (
+                        <button
+                          className="edit-button"
+                          onClick={() => setIsEditing(true)}
+                          disabled={isLoading}
+                        >
+                          <EditIcon/>
+                          <span>Редактировать</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
                   <div className="profile-form">
                     <div className="profile-form-group">
-                      <label htmlFor="oldPassword">Текущий пароль</label>
-                      <div
-                        className={`profile-input-wrapper ${errors.oldPassword ? 'error' : ''}`}>
-                        <LockIcon className="profile-field-icon"/>
+                      <label htmlFor="firstName">Имя</label>
+                      <div className={`profile-input-wrapper ${errors.firstName ? 'error' : ''}`}>
                         <input
-                          type={showOldPassword ? "text" : "password"}
-                          id="oldPassword"
-                          name="oldPassword"
-                          value={formData.oldPassword}
+                          type="text"
+                          id="firstName"
+                          name="first_name"
+                          value={formData.first_name || ''}
                           onChange={handleChange}
-                          placeholder="Введите текущий пароль"
-                          disabled={isLoading}
+                          disabled={!isEditing || isLoading}
+                          placeholder="Введите имя"
                         />
-                        <button
-                          type="button"
-                          className="visibility-toggle"
-                          onClick={() => setShowOldPassword(!showOldPassword)}
-                          disabled={isLoading}
-                        >
-                          {showOldPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
-                        </button>
                       </div>
-                      {errors.oldPassword &&
+                      {errors.firstName &&
                         <div className="profile-error-message">
-                          <MdError />
-                          <span>{errors.oldPassword}</span>
+                          <MdError/>
+                          <span>{errors.firstName}</span>
                         </div>}
                     </div>
 
                     <div className="profile-form-group">
-                      <label htmlFor="newPassword">Новый пароль</label>
-                      <div
-                        className={`profile-input-wrapper ${errors.newPassword ? 'error' : ''}`}>
-                        <LockIcon className="profile-field-icon"/>
+                      <label htmlFor="lastName">Фамилия</label>
+                      <div className={`profile-input-wrapper ${errors.lastName ? 'error' : ''}`}>
                         <input
-                          type={showNewPassword ? "text" : "password"}
-                          id="newPassword"
-                          name="newPassword"
-                          value={formData.newPassword}
+                          type="text"
+                          id="lastName"
+                          name="last_name"
+                          value={formData.last_name || ''}
                           onChange={handleChange}
-                          placeholder="Введите новый пароль"
-                          disabled={isLoading}
+                          disabled={!isEditing || isLoading}
+                          placeholder="Введите фамилию"
                         />
-                        <button
-                          type="button"
-                          className="visibility-toggle"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                          disabled={isLoading}
-                        >
-                          {showNewPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
-                        </button>
                       </div>
-                      {errors.newPassword &&
+                      {errors.lastName &&
                         <div className="profile-error-message">
-                          <MdError />
-                          <span>{errors.newPassword}</span>
+                          <MdError/>
+                          <span>{errors.lastName}</span>
                         </div>}
                     </div>
 
                     <div className="profile-form-group">
-                      <label htmlFor="confirmPassword">Подтверждение пароля</label>
-                      <div
-                        className={`profile-input-wrapper ${errors.confirmPassword ? 'error' : ''}`}>
-                        <LockIcon className="profile-field-icon"/>
+                      <label htmlFor="middleName">Отчество</label>
+                      <div className={`profile-input-wrapper ${errors.middleName ? 'error' : ''}`}>
                         <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          value={formData.confirmPassword}
+                          type="text"
+                          id="middleName"
+                          name="middle_name"
+                          value={formData.middle_name || ''}
                           onChange={handleChange}
-                          placeholder="Подтвердите новый пароль"
-                          disabled={isLoading}
+                          disabled={!isEditing || isLoading}
+                          placeholder="Введите отчество"
                         />
-                        <button
-                          type="button"
-                          className="visibility-toggle"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          disabled={isLoading}
-                        >
-                          {showConfirmPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
-                        </button>
                       </div>
-                      {errors.confirmPassword &&
+                      {errors.middleName &&
                         <div className="profile-error-message">
-                          <MdError />
-                          <span>{errors.confirmPassword}</span>
+                          <MdError/>
+                          <span>{errors.middleName}</span>
+                        </div>}
+                    </div>
+
+                    <div className="profile-form-group">
+                      <label htmlFor="email">Email</label>
+                      <div className={`profile-input-wrapper ${errors.email ? 'error' : ''}`}>
+                        <EmailIcon className="profile-field-icon"/>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          value={formData.email || ''}
+                          onChange={handleChange}
+                          disabled={!isEditing || isLoading}
+                          placeholder="Введите email"
+                        />
+                      </div>
+                      {errors.email &&
+                        <div className="profile-error-message">
+                          <MdError/>
+                          <span>{errors.email}</span>
+                        </div>}
+                    </div>
+
+                    <div className="profile-form-group">
+                      <label htmlFor="phone">Номер телефона</label>
+                      <div className={`profile-input-wrapper ${errors.phone ? 'error' : ''}`}>
+                        <PhoneIcon className="profile-field-icon"/>
+                        <input
+                          type="tel"
+                          id="phone"
+                          name="phone_number"
+                          value={formData.phone_number || ''}
+                          onChange={handleChange}
+                          disabled={!isEditing || isLoading}
+                          placeholder="Введите номер телефона"
+                        />
+                      </div>
+                      {errors.phone &&
+                        <div className="profile-error-message">
+                          <MdError/>
+                          <span>{errors.phone}</span>
                         </div>}
                     </div>
                   </div>
 
-                  <div className="profile-actions">
-                    <button
-                      className="save-button full-width"
-                      onClick={handleSavePassword}
-                      disabled={isLoading}
-                    >
-                      <LockIcon/>
-                      <span>{isLoading ? 'Обновление...' : 'Обновить пароль'}</span>
-                    </button>
-                  </div>
+                  {isEditing && (
+                    <div className="profile-actions">
+                      <button
+                        className="cancel-button"
+                        onClick={handleCancelEdit}
+                        disabled={isLoading}
+                      >
+                        <CloseIcon/>
+                        <span>Отмена</span>
+                      </button>
+                      <button
+                        className="save-button"
+                        onClick={handleSaveProfile}
+                        disabled={isLoading}
+                      >
+                        <SaveIcon/>
+                        <span>{isLoading ? 'Сохранение...' : 'Сохранить изменения'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {isEditing && (
+                  <div className="profile-card">
+                    <div className="profile-card-header">
+                      <h2>Изменение пароля</h2>
+                      <div className="security-icon">
+                        <SecurityIcon/>
+                      </div>
+                    </div>
+
+                    <div className="profile-form">
+                      <div className="profile-form-group">
+                        <label htmlFor="oldPassword">Текущий пароль</label>
+                        <div
+                          className={`profile-input-wrapper ${errors.oldPassword ? 'error' : ''}`}>
+                          <LockIcon className="profile-field-icon"/>
+                          <input
+                            type={showOldPassword ? "text" : "password"}
+                            id="oldPassword"
+                            name="oldPassword"
+                            value={formData.oldPassword}
+                            onChange={handleChange}
+                            placeholder="Введите текущий пароль"
+                            disabled={isLoading}
+                          />
+                          <button
+                            type="button"
+                            className="visibility-toggle"
+                            onClick={() => setShowOldPassword(!showOldPassword)}
+                            disabled={isLoading}
+                          >
+                            {showOldPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                          </button>
+                        </div>
+                        {errors.oldPassword &&
+                          <div className="profile-error-message">
+                            <MdError/>
+                            <span>{errors.oldPassword}</span>
+                          </div>}
+                      </div>
+
+                      <div className="profile-form-group">
+                        <label htmlFor="newPassword">Новый пароль</label>
+                        <div
+                          className={`profile-input-wrapper ${errors.newPassword ? 'error' : ''}`}>
+                          <LockIcon className="profile-field-icon"/>
+                          <input
+                            type={showNewPassword ? "text" : "password"}
+                            id="newPassword"
+                            name="newPassword"
+                            value={formData.newPassword}
+                            onChange={handleChange}
+                            placeholder="Введите новый пароль"
+                            disabled={isLoading}
+                          />
+                          <button
+                            type="button"
+                            className="visibility-toggle"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            disabled={isLoading}
+                          >
+                            {showNewPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                          </button>
+                        </div>
+                        {errors.newPassword &&
+                          <div className="profile-error-message">
+                            <MdError/>
+                            <span>{errors.newPassword}</span>
+                          </div>}
+                      </div>
+
+                      <div className="profile-form-group">
+                        <label htmlFor="confirmPassword">Подтверждение пароля</label>
+                        <div
+                          className={`profile-input-wrapper ${errors.confirmPassword ? 'error' : ''}`}>
+                          <LockIcon className="profile-field-icon"/>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Подтвердите новый пароль"
+                            disabled={isLoading}
+                          />
+                          <button
+                            type="button"
+                            className="visibility-toggle"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            disabled={isLoading}
+                          >
+                            {showConfirmPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+                          </button>
+                        </div>
+                        {errors.confirmPassword &&
+                          <div className="profile-error-message">
+                            <MdError/>
+                            <span>{errors.confirmPassword}</span>
+                          </div>}
+                      </div>
+                    </div>
+
+                    <div className="profile-actions">
+                      <button
+                        className="save-button full-width"
+                        onClick={handleSavePassword}
+                        disabled={isLoading}
+                      >
+                        <LockIcon/>
+                        <span>{isLoading ? 'Обновление...' : 'Обновить пароль'}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <InfoModal
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        title={modalInfo.title}
+        message={modalInfo.message}
+      />
+    </>
   );
 };
 

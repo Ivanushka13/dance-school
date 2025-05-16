@@ -95,7 +95,7 @@ const ModalForm = ({
             newErrors[field.field] = 'Введите корректный email';
           }
 
-          if (field.type === 'phone' && value && !/^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/.test(value)) {
+          if (field.type === 'phone' && value && !/^\+?[1-9]\d{10,14}$/.test(value)) {
             newErrors[field.field] = 'Введите корректный номер телефона';
           }
 

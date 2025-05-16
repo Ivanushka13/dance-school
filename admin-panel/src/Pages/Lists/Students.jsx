@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import SchoolIcon from '@mui/icons-material/School';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addStudent, editStudent, getStudents} from "../../api/students";
 
 const createData = [
   {field: 'email', headerName: 'Почта', type: 'email', required: true},
@@ -107,11 +107,7 @@ const Students = () => {
 
   const fetchStudents = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/students/search/full-info',
-      data: {}
-    }).then(async (response) => {
+    getStudents({}).then(async (response) => {
       setStudents(response.students.map((student) => {
         return {
           id: student.id,
@@ -145,20 +141,17 @@ const Students = () => {
   const executeAction = async (formData, id, isEdit) => {
     setIsLoading(true);
     setShowConfirmModal(false);
+
+    formData = {
+      ...formData,
+      receive_email: false,
+    };
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/students/${id}`,
-          data: formData
-        });
+        await editStudent(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/students',
-          data: formData
-        });
+        await addStudent(formData);
       }
 
       setRefreshData((prev) => prev + 1);

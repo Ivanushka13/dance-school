@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addPayment, editPayment, getPayments} from "../../api/payments";
 
 const createData = [
   {field: 'payment_type_id', headerName: 'Тип платежа', type: 'text', required: true},
@@ -59,11 +59,7 @@ const Payments = () => {
 
   const fetchPayments = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/payments/search',
-      data: {}
-    }).then(async (response) => {
+    getPayments({}).then(async (response) => {
       setPayments(response.payments);
     }).catch((error) => {
       setModalInfo({
@@ -86,17 +82,9 @@ const Payments = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/payments/${id}`,
-          data: formData
-        });
+        await editPayment(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/payments',
-          data: formData
-        });
+        await addPayment(formData);
       }
 
       setRefreshData((prev) => prev + 1);

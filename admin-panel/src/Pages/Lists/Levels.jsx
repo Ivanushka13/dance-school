@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
+import {addLevel, editLevel, getLevels} from "../../api/levels";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -56,11 +56,7 @@ const Levels = () => {
 
   const fetchLevels = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/levels/search',
-      data: {}
-    }).then(async (response) => {
+    getLevels({}).then(async (response) => {
       setLevels(response.levels);
     }).catch((error) => {
       setModalInfo({
@@ -81,17 +77,9 @@ const Levels = () => {
     setIsLoading(true);
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/levels/${id}`,
-          data: formData
-        });
+        await editLevel(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/levels',
-          data: formData
-        });
+        await addLevel(formData);
       }
 
       setRefreshData((prev) => prev + 1);

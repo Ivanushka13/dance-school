@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
+import {addEvent, editEvent, getEvents} from "../../api/events";
 
 const createData = [
   {field: 'event_type_id', headerName: 'Тип мероприятия', type: 'text', required: true},
@@ -80,11 +80,7 @@ const Events = () => {
 
   const fetchEvents = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/events/search',
-      data: {}
-    }).then(async (response) => {
+    getEvents({}).then(async (response) => {
       setEvents(response.events);
     }).catch((error) => {
       setModalInfo({
@@ -105,17 +101,9 @@ const Events = () => {
     setIsLoading(true);
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/events/${id}`,
-          data: formData
-        });
+        await editEvent(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/events',
-          data: formData
-        });
+        await addEvent(formData);
       }
 
       setRefreshData((prev) => prev + 1);

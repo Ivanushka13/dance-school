@@ -1,9 +1,13 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {
+  addSubscriptionTemplate,
+  editSubscriptionTemplate,
+  getSubscriptionTemplates
+} from "../../api/subscriptionTemplates";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -84,11 +88,7 @@ const SubscriptionTemplateList = () => {
 
   const fetchSubscriptionTemplates = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/subscriptionTemplates/search',
-      data: {}
-    }).then(async (response) => {
+    getSubscriptionTemplates({}).then(async (response) => {
       setSubscriptionTemplates(response.subscription_templates);
     }).catch((error) => {
       setModalInfo({
@@ -111,17 +111,9 @@ const SubscriptionTemplateList = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/subscriptionTemplates/${id}`,
-          data: formData,
-        });
+        await editSubscriptionTemplate(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/subscriptionTemplates',
-          data: formData,
-        });
+        await addSubscriptionTemplate(formData);
       }
 
       setRefreshData((prev) => prev + 1);

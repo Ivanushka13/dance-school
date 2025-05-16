@@ -51,7 +51,6 @@ function App() {
             <Route path="/subscription-templates" element={<SubscriptionTemplatesList/>}/>
             <Route path="/payments" element={<PaymentsList/>}/>
             <Route path="/payment-types" element={<PaymentTypesList/>}/>
-            <Route path="/edit" element={<EditPage/>}/>
             <Route path="/slots" element={<SlotsList/>}/>
             <Route path="/dance-styles" element={<DanceStylesList/>}/>
           </Route>

@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import SchoolIcon from '@mui/icons-material/School';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addLessonType, editLessonType, getLessonTypes} from "../../api/lessonTypes";
 
 const createData = [
   {field: 'dance_style_id', headerName: 'Стиль танца', type: 'text', required: true},
@@ -59,11 +59,7 @@ const LessonTypes = () => {
 
   const fetchLessonTypes = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/lessonTypes/search',
-      data: {}
-    }).then(async (response) => {
+    getLessonTypes({}).then(async (response) => {
       setLessonTypes(response.lesson_types);
     }).catch((error) => {
       setModalInfo({
@@ -86,18 +82,9 @@ const LessonTypes = () => {
     
     try {
       if (isEdit) {
-        console.log(formData);
-        await apiRequest({
-          method: 'PATCH',
-          url: `/lessonTypes/${id}`,
-          data: formData
-        });
+        await editLessonType(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/lessonTypes',
-          data: formData
-        });
+        await addLessonType(formData);
       }
 
       setRefreshData((prev) => prev + 1);

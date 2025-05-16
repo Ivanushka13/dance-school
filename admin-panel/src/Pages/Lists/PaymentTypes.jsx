@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import CategoryIcon from '@mui/icons-material/Category';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addPaymentType, editPaymentType, getPaymentTypes} from "../../api/paymentTypes";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true}
@@ -51,11 +51,7 @@ const PaymentTypes = () => {
 
   const fetchPaymentTypes = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/paymentTypes/search',
-      data: {}
-    }).then(async (response) => {
+    getPaymentTypes({}).then(async (response) => {
       setPaymentTypes(response.payment_types);
     }).catch((error) => {
       setModalInfo({
@@ -78,17 +74,9 @@ const PaymentTypes = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/paymentTypes/${id}`,
-          data: formData
-        });
+        await editPaymentType(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/paymentTypes',
-          data: formData
-        });
+        await addPaymentType(formData);
       }
 
       setRefreshData((prev) => prev + 1);

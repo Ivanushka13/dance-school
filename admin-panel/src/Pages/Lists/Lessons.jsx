@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import EventIcon from '@mui/icons-material/Event';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addLesson, editLesson, getLessons} from "../../api/lessons";
 
 const createData = [
   {field: 'name', headerName: 'Название', type: 'text', required: true},
@@ -115,11 +115,7 @@ const Lessons = () => {
 
   const fetchLessons = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/lessons/search/admin',
-      data: {}
-    }).then(async (response) => {
+    getLessons({}).then(async (response) => {
       setLessons(response.lessons);
     }).catch((error) => {
       setModalInfo({
@@ -142,17 +138,9 @@ const Lessons = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/lessons/${id}`,
-          data: formData
-        });
+        await editLesson(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/lessons',
-          data: formData
-        });
+        await addLesson(formData);
       }
 
       setRefreshData((prev) => prev + 1);

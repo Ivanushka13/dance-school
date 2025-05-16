@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addSlot, editSlot, getSlots} from "../../api/slots";
 
 const createData = [
   {field: 'teacher_id', headerName: 'Преподаватель', type: 'text', required: true},
@@ -68,11 +68,7 @@ const Slots = () => {
 
   const fetchSlots = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/slots/search',
-      data: {}
-    }).then(async (response) => {
+    getSlots({}).then(async (response) => {
       setSlots(response.slots);
     }).catch((error) => {
       setModalInfo({
@@ -95,17 +91,9 @@ const Slots = () => {
     
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/slots/${id}`,
-          data: formData
-        });
+        await editSlot(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/slots',
-          data: formData
-        });
+        await addSlot(formData);
       }
 
       setRefreshData((prev) => prev + 1);

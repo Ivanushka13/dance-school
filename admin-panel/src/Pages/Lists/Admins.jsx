@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ListPage from '../../Components/ListPage/ListPage';
-import {apiRequest} from "../../util/apiService";
 import InfoModal from "../../Components/Modal/InfoModal/InfoModal";
 import ConfirmModal from "../../Components/Modal/ConfirmModal/ConfirmModal";
+import {addAdmin, editAdmin, getAdmins} from "../../api/admins";
 
 const createData = [
   {field: 'email', headerName: 'Email', type: 'email', required: true},
@@ -104,11 +104,7 @@ const Admins = () => {
 
   const fetchAdmins = useCallback(() => {
     setIsLoading(true);
-    apiRequest({
-      method: 'POST',
-      url: '/admins/search/full-info',
-      data: {}
-    }).then(async (response) => {
+    getAdmins({}).then(async (response) => {
       setAdmins(response.admins.map((admin) => {
         return {
           id: admin.id,
@@ -141,20 +137,12 @@ const Admins = () => {
   const executeAction = async (formData, id, isEdit) => {
     setIsLoading(true);
     setShowConfirmModal(false);
-    
+
     try {
       if (isEdit) {
-        await apiRequest({
-          method: 'PATCH',
-          url: `/admins/${id}`,
-          data: formData
-        });
+        await editAdmin(id, formData);
       } else {
-        await apiRequest({
-          method: 'POST',
-          url: '/admins',
-          data: formData
-        });
+        await addAdmin(formData);
       }
 
       setRefreshData((prev) => prev + 1);
@@ -173,14 +161,14 @@ const Admins = () => {
   const handleSubmit = (formData, id, isEdit) => {
     setConfirmModalInfo({
       title: isEdit ? 'Изменение администратора' : 'Создание администратора',
-      message: isEdit 
-        ? 'Вы уверены, что хотите сохранить изменения администратора?' 
+      message: isEdit
+        ? 'Вы уверены, что хотите сохранить изменения администратора?'
         : 'Вы уверены, что хотите создать нового администратора?',
       confirmText: isEdit ? 'Сохранить' : 'Создать',
       cancelText: 'Отмена',
       onConfirm: () => executeAction(formData, id, isEdit)
     });
-    
+
     setShowConfirmModal(true);
   };
 
